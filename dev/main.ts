@@ -1,3 +1,3 @@
 window.addEventListener("load", function() {
-    Game.getInstance();
+    new Game();
 });

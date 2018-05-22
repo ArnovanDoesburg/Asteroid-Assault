@@ -4,12 +4,6 @@ var Game = (function () {
         this.level = new Level(1);
         requestAnimationFrame(function () { return _this.update(); });
     }
-    Game.getInstance = function () {
-        if (!Game.instance) {
-            Game.instance = new Game();
-        }
-        return Game.instance;
-    };
     Game.prototype.update = function () {
         KeyboardInput.getInstance().inputLoop();
         this.level.update();
@@ -141,7 +135,7 @@ var LevelManager = (function () {
     return LevelManager;
 }());
 window.addEventListener("load", function () {
-    Game.getInstance();
+    new Game();
 });
 var Bullet = (function () {
     function Bullet(x, y, rotation) {

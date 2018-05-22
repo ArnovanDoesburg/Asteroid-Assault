@@ -1,20 +1,10 @@
 class Game {
 
-    private static instance : Game;
     private level : Level;
     
-    private constructor() {
-
+    constructor() {
         this.level = new Level(1);
-
         requestAnimationFrame(() => this.update());
-    }
-
-    public static getInstance() {
-        if (! Game.instance) {
-            Game.instance = new Game()
-            }
-        return Game.instance
     }
 
     private update(){
