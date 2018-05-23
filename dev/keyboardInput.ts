@@ -1,7 +1,7 @@
 class KeyboardInput {
-    public keyCallback: { [keycode: number]: () => void; } = {};
-    public keyDown: { [keycode: number]: boolean; } = {};
-    private static _instance : KeyboardInput;
+    public keyCallback          : { [keycode: number]: () => void; } = {};
+    public keyDown              : { [keycode: number]: boolean; } = {};
+    private static _instance    : KeyboardInput;
  
     private constructor() {
        document.addEventListener('keydown', this.keyboardDown);
@@ -13,18 +13,18 @@ class KeyboardInput {
             }
         return KeyboardInput._instance
     }
-    public keyboardDown = (event: KeyboardEvent): void => {
+    public keyboardDown = (event:KeyboardEvent): void => {
        event.preventDefault();
        this.keyDown[event.keyCode] = true;
     }
-    public keyboardUp = (event: KeyboardEvent): void => {
+    public keyboardUp = (event:KeyboardEvent): void => {
        this.keyDown[event.keyCode] = false;
     }
-    public addKeycodeCallback = (keycode: number, f: () => void): void => {
+    public addKeycodeCallback = (keycode:number, f: () => void): void => {
         this.keyCallback[keycode] = f;
         this.keyDown[keycode] = false;
      }
-     public inputLoop = (): void => {
+     public inputLoop = () : void => {
         for (var key in this.keyDown) {
            var is_down: boolean = this.keyDown[key];
            if (is_down) {

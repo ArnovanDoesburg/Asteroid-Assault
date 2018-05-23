@@ -1,20 +1,143 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var Game = (function () {
     function Game() {
         var _this = this;
-        this.level = new Level(1);
-        requestAnimationFrame(function () { return _this.update(); });
+        this._ships = new Array();
+        this._asteroids = new Array();
+        this._pause = false;
+        var ship = new Ship();
+        this._ships.push(ship);
+        var asteroid = new Asteroid();
+        this._asteroids.push(asteroid);
+        requestAnimationFrame(function () { return _this.gameLoop(); });
     }
-    Game.prototype.update = function () {
-        KeyboardInput.getInstance().inputLoop();
-        this.level.update();
-        this.draw();
+    Game.prototype.togglePause = function () {
+        this._pause != this._pause;
     };
-    Game.prototype.draw = function () {
+    Game.prototype.gameLoop = function () {
         var _this = this;
-        this.level.draw();
-        requestAnimationFrame(function () { return _this.update(); });
+        if (!this._pause) {
+            for (var _i = 0, _a = this._ships; _i < _a.length; _i++) {
+                var ship = _a[_i];
+                for (var _b = 0, _c = this._asteroids; _b < _c.length; _b++) {
+                    var asteroid = _c[_b];
+                    var isColliding = ship.hasCollision(asteroid);
+                    if (isColliding) {
+                    }
+                }
+                for (var _d = 0, _e = ship.bulletList; _d < _e.length; _d++) {
+                    var bullet = _e[_d];
+                    for (var _f = 0, _g = this._asteroids; _f < _g.length; _f++) {
+                        var asteroid = _g[_f];
+                        asteroid.remove(asteroid, this._asteroids);
+                        bullet.remove(bullet, ship.bulletList);
+                    }
+                }
+                ship.update();
+                ship.draw();
+            }
+            for (var _h = 0, _j = this._asteroids; _h < _j.length; _h++) {
+                var asteroid = _j[_h];
+                asteroid.draw();
+                asteroid.update();
+            }
+            KeyboardInput.getInstance().inputLoop();
+        }
+        requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
+}());
+var GameObject = (function () {
+    function GameObject(x, y, tag) {
+        this._x = 0;
+        this._y = 0;
+        this._rotation = 0;
+        this._width = 0;
+        this._height = 0;
+        this._x = x;
+        this._y = y;
+        this._div = document.createElement(tag);
+        document.body.appendChild(this._div);
+        this._width = this._div.clientWidth;
+        this._height = this._div.clientHeight;
+        this.draw();
+    }
+    Object.defineProperty(GameObject.prototype, "x", {
+        get: function () { return this._x; },
+        set: function (value) { this._x = value; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    ;
+    Object.defineProperty(GameObject.prototype, "y", {
+        get: function () { return this._y; },
+        set: function (value) { this._y = value; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    ;
+    Object.defineProperty(GameObject.prototype, "rotation", {
+        get: function () { return this._rotation; },
+        set: function (value) { this._rotation = value; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    ;
+    Object.defineProperty(GameObject.prototype, "width", {
+        get: function () { return this._width; },
+        set: function (value) { this._width = value; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    ;
+    Object.defineProperty(GameObject.prototype, "height", {
+        get: function () { return this._height; },
+        set: function (value) { this._height = value; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    ;
+    Object.defineProperty(GameObject.prototype, "div", {
+        get: function () { return this._div; },
+        set: function (value) { this._div = value; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    ;
+    GameObject.prototype.update = function () {
+    };
+    GameObject.prototype.draw = function () {
+        this._div.style.transform = "translate(" + this.x + "px, " + this.y + "px) rotate(" + this.rotation + "deg)";
+    };
+    GameObject.prototype.hasCollision = function (obj) {
+        return (this.x < obj.x + obj.width &&
+            this.x + this.width > obj.x &&
+            this.y < obj.y + obj.height &&
+            this.y + this.height > obj.y);
+    };
+    GameObject.prototype.remove = function (obj, arr) {
+        obj.div.remove();
+        var i = arr.indexOf(obj);
+        if (i != -1) {
+            arr.splice(i, 1);
+        }
+    };
+    return GameObject;
 }());
 var KeyboardInput = (function () {
     function KeyboardInput() {
@@ -54,326 +177,72 @@ var KeyboardInput = (function () {
     };
     return KeyboardInput;
 }());
-var Level = (function () {
-    function Level(levelnr) {
-        this._gameObjects = new Array();
-        Level.instance = this;
-        for (var i = 0; i < levelnr * 4 - 1; i++) {
-            var meteor = new Meteor();
-        }
-        var player = new Player(this);
-        var powerup = new PowerUp();
-    }
-    Level.prototype.checkCollision = function () {
-        for (var _i = 0, _a = this._gameObjects; _i < _a.length; _i++) {
-            var obj = _a[_i];
-            for (var _b = 0, _c = this._gameObjects; _b < _c.length; _b++) {
-                var item = _c[_b];
-                if (obj !== item) {
-                    if (this.intersects(obj.getRect(), item.getRect())) {
-                        obj.collide(item);
-                    }
-                }
-            }
-        }
-    };
-    Level.prototype.countAsteroids = function () {
-        for (var _i = 0, _a = this._gameObjects; _i < _a.length; _i++) {
-            var obj = _a[_i];
-            if (obj instanceof Meteor) {
-                return true;
-            }
-            break;
-        }
-        return false;
-    };
-    Level.prototype.intersects = function (a, b) {
-        return (a.left <= b.right &&
-            b.left <= a.right &&
-            a.top <= b.bottom &&
-            b.top <= a.bottom);
-    };
-    Level.addGameObject = function (obj) {
-        Level.instance._gameObjects.push(obj);
-    };
-    Level.removeGameObject = function (obj) {
-        var index = Level.instance._gameObjects.indexOf(obj);
-        Level.instance._gameObjects.splice(index, 1);
-    };
-    Level.prototype.update = function () {
-        for (var _i = 0, _a = this._gameObjects; _i < _a.length; _i++) {
-            var obj = _a[_i];
-            obj.update();
-        }
-    };
-    Level.prototype.draw = function () {
-        for (var _i = 0, _a = this._gameObjects; _i < _a.length; _i++) {
-            var obj = _a[_i];
-            obj.draw();
-        }
-        this.checkCollision();
-    };
-    return Level;
-}());
-var LevelManager = (function () {
-    function LevelManager() {
-        this._levelNumber = 1;
-    }
-    LevelManager.getInstance = function () {
-        if (!LevelManager._instance) {
-            LevelManager._instance = new LevelManager();
-        }
-        return LevelManager._instance;
-    };
-    LevelManager.prototype.getCurrentLevel = function () {
-        return this._levelNumber;
-    };
-    LevelManager.prototype.getNextLevel = function () {
-        this._levelNumber++;
-        return this._levelNumber;
-    };
-    return LevelManager;
-}());
 window.addEventListener("load", function () {
     new Game();
 });
-var Bullet = (function () {
-    function Bullet(x, y, rotation) {
-        this.speed = 10;
-        this.div = document.createElement("bullet");
-        document.body.appendChild(this.div);
-        this.x = x;
-        this.y = y;
-        this.rotation = rotation;
+var Asteroid = (function (_super) {
+    __extends(Asteroid, _super);
+    function Asteroid() {
+        var _this = _super.call(this, 200, 200, 'asteroid') || this;
+        _this._speed = 2;
+        return _this;
     }
-    Bullet.prototype.collide = function (otherObject) {
-        if (otherObject instanceof Meteor) {
-            otherObject.removeAsteroid();
-            this.remove();
-        }
+    Asteroid.prototype.update = function () {
     };
-    Bullet.prototype.move = function () {
-        this.x += this.speed * Math.cos(this.rotation * Math.PI / 180);
-        this.y += this.speed * Math.sin(this.rotation * Math.PI / 180);
-    };
-    Bullet.prototype.checkBoundaries = function () {
-        if (this.x + this.div.clientWidth < 0) {
-            this.remove();
-        }
-        if (this.x > window.innerWidth) {
-            this.remove();
-        }
-        if (this.y + this.div.clientHeight < 0) {
-            this.remove();
-        }
-        if (this.y > window.innerHeight) {
-            this.remove();
-        }
-    };
-    Bullet.prototype.remove = function () {
-        this.div.remove();
-        Level.removeGameObject(this);
-    };
-    Bullet.prototype.getRect = function () {
-        return this.rectangle;
-    };
-    Bullet.prototype.update = function () {
-        this.move();
-        this.checkBoundaries();
-    };
-    Bullet.prototype.draw = function () {
-        this.div.style.transform = "translate(" + this.x + "px, " + this.y + "px) rotate(" + this.rotation + "deg)";
-        this.rectangle = this.div.getBoundingClientRect();
-    };
+    return Asteroid;
+}(GameObject));
+var Bullet = (function (_super) {
+    __extends(Bullet, _super);
+    function Bullet() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
     return Bullet;
-}());
-var Meteor = (function () {
-    function Meteor() {
-        this.createMeteor();
-        Level.addGameObject(this);
+}(GameObject));
+var Ship = (function (_super) {
+    __extends(Ship, _super);
+    function Ship() {
+        var _this = _super.call(this, window.innerWidth / 3, window.innerHeight / 2, 'ship') || this;
+        _this._speed = 7;
+        _this._angle = 5;
+        _this._bulletList = new Array();
+        _this._shootBehaviour = new SingleShot();
+        KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
+        KeyboardInput.getInstance().addKeycodeCallback(39, function () { _this.rotate(+_this._angle); });
+        KeyboardInput.getInstance().addKeycodeCallback(38, function () { _this.accelerate(); });
+        return _this;
     }
-    Meteor.prototype.getRect = function () {
-        return this.rectangle;
+    Object.defineProperty(Ship.prototype, "shootBehaviour", {
+        set: function (value) { this._shootBehaviour = value; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(Ship.prototype, "bulletList", {
+        get: function () { return this._bulletList; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    Ship.prototype.accelerate = function () {
+        this.x += this._speed * Math.cos(this.rotation * Math.PI / 180);
+        this.y += this._speed * Math.sin(this.rotation * Math.PI / 180);
     };
-    Meteor.prototype.createMeteor = function () {
-        var random = Math.floor(Math.random() * 3) + 1;
-        this.div = document.createElement("meteor");
-        this.div.className = "big" + random;
-        document.body.appendChild(this.div);
-        this.x = Math.floor((Math.random() * window.innerWidth) + 1);
-        this.y = Math.floor((Math.random() * window.innerHeight) + 1);
-        this.rotation = 0;
-        this.xSpeed = Math.random() < 0.5 ?
-            Math.random() - 1 * 1.5 :
-            Math.random() * 1.5;
-        this.ySpeed = Math.random() < 0.5 ?
-            Math.random() - 1 * 1.5 :
-            Math.random() * 1.5;
-        this.rotationSpeed = Math.random() * 2;
-    };
-    Meteor.prototype.move = function () {
-        this.x += this.xSpeed * 1;
-        this.y += this.ySpeed * 1;
-        this.rotation += this.rotationSpeed;
-        if (this.x + this.div.clientWidth < 0) {
-            this.x = window.innerWidth;
-        }
-        if (this.x > window.innerWidth) {
-            this.x = 0 - this.div.clientWidth;
-        }
-        if (this.y + this.div.clientHeight < 0) {
-            this.y = window.innerHeight;
-        }
-        if (this.y > window.innerHeight) {
-            this.y = 0 - this.div.clientHeight;
-        }
-    };
-    Meteor.prototype.collide = function (otherObject) {
-        if (otherObject instanceof Meteor) {
-        }
-        else if (otherObject instanceof Player) {
-        }
-    };
-    Meteor.prototype.removeAsteroid = function () {
-        this.div.remove();
-        Level.removeGameObject(this);
-    };
-    Meteor.prototype.update = function () {
-        this.move();
-    };
-    Meteor.prototype.draw = function () {
-        this.div.style.transform = "translate(" + this.x + "px, " + this.y + "px) rotate(" + this.rotation + "deg)";
-        this.rectangle = this.div.getBoundingClientRect();
-    };
-    return Meteor;
-}());
-var Player = (function () {
-    function Player(level) {
-        this.x = 0;
-        this.y = 0;
-        this.rotation = 0;
-        this.angle = 5;
-        this.maxSpeed = 7;
-        this.shootingCooldown = 0;
-        this.createPlayer(level);
-        Level.addGameObject(this);
-    }
-    Player.prototype.getRect = function () {
-        return this.rectangle;
-    };
-    Player.prototype.createPlayer = function (level) {
-        var _this = this;
-        this.div = document.createElement("player");
-        document.body.appendChild(this.div);
-        this.x = window.innerWidth / 2 - this.div.clientWidth / 2;
-        this.y = window.innerHeight / 2 - this.div.clientHeight / 2;
-        this.shootBehavior = new SingleShot();
-        KeyboardInput.getInstance().addKeycodeCallback(37, function () {
-            _this.turn(-_this.angle);
-        });
-        KeyboardInput.getInstance().addKeycodeCallback(39, function () {
-            _this.turn(+_this.angle);
-        });
-        KeyboardInput.getInstance().addKeycodeCallback(38, function () {
-            _this.accelerate();
-        });
-        KeyboardInput.getInstance().addKeycodeCallback(32, function () {
-            if (_this.shootingCooldown <= 0) {
-                _this.shootWeapon();
-                _this.shootingCooldown = 3;
-            }
-        });
-    };
-    Player.prototype.accelerate = function () {
-        this.x += this.maxSpeed * Math.cos(this.rotation * Math.PI / 180);
-        this.y += this.maxSpeed * Math.sin(this.rotation * Math.PI / 180);
-        if (this.x + this.div.clientWidth < 0) {
-            this.x = window.innerWidth;
-        }
-        if (this.x > window.innerWidth) {
-            this.x = 0 - this.div.clientWidth;
-        }
-        if (this.y + this.div.clientHeight < 0) {
-            this.y = window.innerHeight;
-        }
-        if (this.y > window.innerHeight) {
-            this.y = 0 - this.div.clientHeight;
-        }
-    };
-    Player.prototype.setShootBehavior = function (behavior) {
-        this.shootBehavior = behavior;
-    };
-    Player.prototype.turn = function (angle) {
+    Ship.prototype.rotate = function (angle) {
         this.rotation += angle;
-        if (this.rotation >= 361) {
-            this.rotation = 5;
-        }
-        else if (this.rotation <= 0) {
-            this.rotation = 360;
-        }
     };
-    Player.prototype.collide = function (otherObject) {
-        if (otherObject instanceof Meteor) {
-        }
-    };
-    Player.prototype.shootWeapon = function () {
-        var x = this.x + (this.div.clientWidth / 2);
-        var y = this.y + (this.div.clientHeight / 2);
-        this.shootBehavior.shoot(x, y, this.rotation);
-    };
-    Player.prototype.update = function () {
-        if (this.shootingCooldown > 0) {
-            this.shootingCooldown -= 0.1;
-        }
-        this.rectangle = this.div.getBoundingClientRect();
-    };
-    Player.prototype.draw = function () {
-        this.div.style.transform = "translate(" + this.x + "px, " + this.y + "px) rotate(" + this.rotation + "deg)";
-    };
-    return Player;
-}());
-var PowerUp = (function () {
-    function PowerUp() {
-        this.x = 0;
-        this.y = 0;
-        this.x = Math.floor((Math.random() * window.innerWidth) + 1) - 0.5;
-        this.y = Math.floor((Math.random() * window.innerHeight) + 1) - 0.5;
-        this.div = document.createElement("powerup");
-        document.body.appendChild(this.div);
-        Level.addGameObject(this);
-    }
-    PowerUp.prototype.collide = function (otherObject) {
-        if (otherObject instanceof Player) {
-            otherObject.setShootBehavior(new MultiShot());
-            this.div.remove();
-        }
-    };
-    PowerUp.prototype.getRect = function () {
-        return this.rectangle;
-    };
-    PowerUp.prototype.update = function () {
-    };
-    PowerUp.prototype.draw = function () {
-        this.div.style.transform = "translate(" + this.x + "px, " + this.y + "px)";
-        this.rectangle = this.div.getBoundingClientRect();
-    };
-    return PowerUp;
-}());
+    return Ship;
+}(GameObject));
 var MultiShot = (function () {
     function MultiShot() {
     }
-    MultiShot.prototype.shoot = function (x, y, rotation) {
-        Level.addGameObject(new Bullet(x, y, rotation));
-        Level.addGameObject(new Bullet(x, y, rotation - 25));
-        Level.addGameObject(new Bullet(x, y, rotation + 25));
+    MultiShot.prototype.shoot = function () {
     };
     return MultiShot;
 }());
 var SingleShot = (function () {
     function SingleShot() {
     }
-    SingleShot.prototype.shoot = function (x, y, rotation) {
-        Level.addGameObject(new Bullet(x, y, rotation));
+    SingleShot.prototype.shoot = function () {
     };
     return SingleShot;
 }());

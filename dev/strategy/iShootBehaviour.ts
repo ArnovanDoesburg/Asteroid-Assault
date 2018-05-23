@@ -1,0 +1,3 @@
+interface iShootBehaviour {
+    shoot() : void;
+}

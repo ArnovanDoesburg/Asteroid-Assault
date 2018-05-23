@@ -14,22 +14,10 @@ body * {
     background-repeat: no-repeat;
 }
 
-.big1 {
+asteroid {
     background-image: url(./../img/meteor/big1.png);
     width: 89px;
     height: 82px;
-}
-
-.big2 {
-    background-image: url(./../img/meteor/big2.png);
-    width: 101px;
-    height: 84px;
-}
-
-.big3 {
-    background-image: url(./../img/meteor/big3.png);
-    width: 120px;
-    height: 98px;
 }
 
 powerup {
@@ -40,14 +28,14 @@ powerup {
 
 bullet {
     background-image: url(./../img/bullet.png);
-    width: 54px;
-    height: 9px;
+    width: 48px;
+    height: 46px;
 }
 
-player {
-    background-image: url(./../img/player.png);
-    width: 84px;
-    height: 93px;
+ship {
+    background-image: url(./../img/ship.png);
+    width: 75px;
+    height: 112px;
 }
 
 /* Browser Sync script tag disabler */
