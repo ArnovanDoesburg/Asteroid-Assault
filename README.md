@@ -34,7 +34,11 @@ Make sure to execute this command in the /dist directory and not the root folder
 
 ## Pull request
 
-Coming soon™
+With this pull request I added a new feature branch to a tower defense game which made it possible to restock the towers with bullets by purchasing ammo with gold.
+
+I also added the ability to generate more gold by killing zombies.
+
+[Link](https://github.com/Tim0182/CMTPRG01-8/pull/2)
 
 
 ## Peer review
