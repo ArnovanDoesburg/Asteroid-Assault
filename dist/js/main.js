@@ -13,11 +13,20 @@ var Game = (function () {
         var _this = this;
         this._ships = new Array();
         this._asteroids = new Array();
+        this._bullets = new Array();
+        this._powerUps = new Array();
+        this._bombs = new Array();
         this._pause = false;
         var ship = new Ship();
         this._ships.push(ship);
-        var asteroid = new Asteroid();
-        this._asteroids.push(asteroid);
+        var upgrade = new MultiShotUpgrade();
+        this._powerUps.push(upgrade);
+        this._bomb = new Bomb();
+        this._bombs.push(this._bomb);
+        for (var i = 0; i < 10; i++) {
+            var asteroid = new Asteroid(this._bomb);
+            this._asteroids.push(asteroid);
+        }
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
     Game.prototype.togglePause = function () {
@@ -32,12 +41,29 @@ var Game = (function () {
                     var asteroid = _c[_b];
                     var isColliding = ship.hasCollision(asteroid);
                     if (isColliding) {
+                        ship.remove(ship, this._ships);
                     }
                 }
-                for (var _d = 0, _e = ship.bulletList; _d < _e.length; _d++) {
-                    var bullet = _e[_d];
-                    for (var _f = 0, _g = this._asteroids; _f < _g.length; _f++) {
-                        var asteroid = _g[_f];
+                for (var _d = 0, _e = this._powerUps; _d < _e.length; _d++) {
+                    var powerup = _e[_d];
+                    var isColliding = ship.hasCollision(powerup);
+                    if (isColliding) {
+                        ship.shootBehaviour = new MultiShot(ship);
+                        powerup.remove(powerup, this._powerUps);
+                    }
+                }
+                for (var _f = 0, _g = this._bombs; _f < _g.length; _f++) {
+                    var bomb = _g[_f];
+                    var isColliding = ship.hasCollision(bomb);
+                    if (isColliding) {
+                        bomb.activate();
+                        bomb.remove(bomb, this._bombs);
+                    }
+                }
+                for (var _h = 0, _j = ship.bulletList; _h < _j.length; _h++) {
+                    var bullet = _j[_h];
+                    for (var _k = 0, _l = this._asteroids; _k < _l.length; _k++) {
+                        var asteroid = _l[_k];
                         var isColliding = bullet.hasCollision(asteroid);
                         if (isColliding) {
                             asteroid.remove(asteroid, this._asteroids);
@@ -50,8 +76,8 @@ var Game = (function () {
                 ship.update();
                 ship.draw();
             }
-            for (var _h = 0, _j = this._asteroids; _h < _j.length; _h++) {
-                var asteroid = _j[_h];
+            for (var _m = 0, _o = this._asteroids; _m < _o.length; _m++) {
+                var asteroid = _o[_m];
                 asteroid.draw();
                 asteroid.update();
             }
@@ -188,14 +214,59 @@ window.addEventListener("load", function () {
 });
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
-    function Asteroid() {
-        var _this = _super.call(this, 200, 200, 0, 'asteroid') || this;
+    function Asteroid(s) {
+        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
         _this._speed = 2;
+        _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
+        _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
+        _this._rotationSpeed = Math.random() * 2;
+        s.subscribe(_this);
         return _this;
     }
     Asteroid.prototype.update = function () {
+        this.x += this._speedX;
+        this.y += this._speedY;
+        this.rotation += this._rotationSpeed;
+        this.outsideWindow();
+    };
+    Asteroid.prototype.outsideWindow = function () {
+        if (this.x + this.div.clientWidth < 0) {
+            this.x = window.innerWidth;
+        }
+        if (this.x > window.innerWidth) {
+            this.x = 0 - this.div.clientWidth;
+        }
+        if (this.y + this.div.clientHeight < 0) {
+            this.y = window.innerHeight;
+        }
+        if (this.y > window.innerHeight) {
+            this.y = 0 - this.div.clientHeight;
+        }
+    };
+    Asteroid.prototype.notify = function () {
+        console.log('biem');
     };
     return Asteroid;
+}(GameObject));
+var Bomb = (function (_super) {
+    __extends(Bomb, _super);
+    function Bomb() {
+        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'bomb') || this;
+        _this.observers = new Array();
+        return _this;
+    }
+    Bomb.prototype.subscribe = function (o) {
+        this.observers.push(o);
+    };
+    Bomb.prototype.unsubscribe = function (o) {
+    };
+    Bomb.prototype.activate = function () {
+        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
+            var o = _a[_i];
+            o.notify();
+        }
+    };
+    return Bomb;
 }(GameObject));
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
@@ -204,7 +275,6 @@ var Bullet = (function (_super) {
         _this._speed = 10;
         _this._speedX = 0;
         _this._speedY = 0;
-        _this.rotation = rotation;
         _this._bulletList = bulletList;
         _this._speedX = _this._speed * Math.cos(rotation / 180 * Math.PI);
         _this._speedY = _this._speed * Math.sin(rotation / 180 * Math.PI);
@@ -228,11 +298,11 @@ var Bullet = (function (_super) {
 var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship() {
-        var _this = _super.call(this, window.innerWidth / 3, window.innerHeight / 2, 0, 'ship') || this;
+        var _this = _super.call(this, window.innerWidth / 5, window.innerHeight / 2, 0, 'ship') || this;
         _this._speed = 7;
         _this._angle = 5;
         _this._bulletList = new Array();
-        _this._shootBehaviour = new MultiShot(_this);
+        _this._shootBehaviour = new SingleShot(_this);
         KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(39, function () { _this.rotate(+_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(38, function () { _this.accelerate(); });
@@ -258,10 +328,35 @@ var Ship = (function (_super) {
     Ship.prototype.rotate = function (angle) {
         this.rotation += angle;
     };
+    Ship.prototype.outsideWindow = function () {
+        if (this.x + this.div.clientWidth < 0) {
+            this.x = window.innerWidth;
+        }
+        if (this.x > window.innerWidth) {
+            this.x = 0 - this.div.clientWidth;
+        }
+        if (this.y + this.div.clientHeight < 0) {
+            this.y = window.innerHeight;
+        }
+        if (this.y > window.innerHeight) {
+            this.y = 0 - this.div.clientHeight;
+        }
+    };
     Ship.prototype.update = function () {
         this._shootBehaviour.updateCooldown();
+        this.outsideWindow();
     };
     return Ship;
+}(GameObject));
+var MultiShotUpgrade = (function (_super) {
+    __extends(MultiShotUpgrade, _super);
+    function MultiShotUpgrade() {
+        return _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'weaponupgrade') || this;
+    }
+    MultiShotUpgrade.prototype.activate = function (s) {
+        return new MultiShot(s);
+    };
+    return MultiShotUpgrade;
 }(GameObject));
 var MultiShot = (function () {
     function MultiShot(s) {
@@ -272,10 +367,10 @@ var MultiShot = (function () {
         if (this._cooldown > 0) {
             return;
         }
-        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation, this._ship.bulletList, 'bulletmulti'));
-        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation + 25, this._ship.bulletList, 'bulletmulti'));
-        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation - 25, this._ship.bulletList, 'bulletmulti'));
-        this._cooldown = 0;
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, this._ship.bulletList, 'bulletmulti'));
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, this._ship.bulletList, 'bulletmulti'));
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, this._ship.bulletList, 'bulletmulti'));
+        this._cooldown = 20;
     };
     MultiShot.prototype.updateCooldown = function () {
         if (this._cooldown > 0) {
@@ -293,7 +388,7 @@ var SingleShot = (function () {
         if (this._cooldown > 0) {
             return;
         }
-        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation, this._ship.bulletList, 'bulletsingle'));
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, this._ship.bulletList, 'bulletsingle'));
         this._cooldown = 10;
     };
     SingleShot.prototype.updateCooldown = function () {

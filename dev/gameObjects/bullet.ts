@@ -7,7 +7,6 @@ class Bullet extends GameObject {
 
     constructor(x:number, y:number, rotation:number, bulletList : Array<Bullet>, tag:string) {
         super(x, y, rotation, tag);
-        this.rotation = rotation;
 
         this._bulletList = bulletList;
         this._speedX = this._speed * Math.cos(rotation / 180 * Math.PI);

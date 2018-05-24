@@ -20,8 +20,14 @@ asteroid {
     height: 82px;
 }
 
-powerup {
-    background-image: url(./../img/powerup.png);
+bomb {
+    background-image: url(./../img/bomb.png);
+    width: 32px;
+    height: 32px;
+}
+
+weaponupgrade {
+    background-image: url(./../img/multishot.png);
     width: 32px;
     height: 32px;
 }

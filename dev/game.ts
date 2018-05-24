@@ -1,15 +1,28 @@
 class Game {
     private _ships       : Array<Ship> = new Array();
     private _asteroids   : Array<Asteroid> = new Array();
-    private _pause      : boolean = false;
+    private _bullets     : Array<Bullet> = new Array();
+    private _powerUps    : Array<GameObject> = new Array();
+    private _bombs       : Array<Bomb> = new Array();
+    private _pause       : boolean = false;
+
+    private _bomb        : Bomb;
 
     constructor() {
 
         let ship = new Ship();
         this._ships.push(ship);
 
-        let asteroid = new Asteroid();
-        this._asteroids.push(asteroid);
+        let upgrade = new MultiShotUpgrade();
+        this._powerUps.push(upgrade);
+
+        this._bomb = new Bomb();
+        this._bombs.push(this._bomb);
+
+        for (let i = 0; i < 10; i++) {
+            let asteroid = new Asteroid(this._bomb);
+            this._asteroids.push(asteroid);
+        }
 
         requestAnimationFrame(() => this.gameLoop());
     }
@@ -26,7 +39,23 @@ class Game {
                 for (let asteroid of this._asteroids) {
                     let isColliding = ship.hasCollision(asteroid);
                     if (isColliding) {
-                        // Player lose life
+                        ship.remove(ship, this._ships);
+                    }
+                }
+
+                for (let powerup of this._powerUps) {
+                    let isColliding = ship.hasCollision(powerup);
+                    if (isColliding) {
+                        ship.shootBehaviour = new MultiShot(ship);
+                        powerup.remove(powerup, this._powerUps);
+                    }
+                }
+
+                for (let bomb of this._bombs) {
+                    let isColliding = ship.hasCollision(bomb);
+                    if (isColliding) {
+                        bomb.activate();
+                        bomb.remove(bomb, this._bombs);
                     }
                 }
                 
@@ -49,7 +78,6 @@ class Game {
                 asteroid.draw();
                 asteroid.update();
             }
-
             KeyboardInput.getInstance().inputLoop();
         }
 
