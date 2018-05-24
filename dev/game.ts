@@ -24,11 +24,14 @@ class Game {
             this._asteroids.push(asteroid);
         }
 
+        let pauseButton = new PauseButton(this);
+
         requestAnimationFrame(() => this.gameLoop());
     }
 
-    private togglePause() {
-        this._pause != this._pause;
+    public togglePause() {
+        this._pause = !this._pause;
+        console.log(this._pause);
     }
 
     private gameLoop() {

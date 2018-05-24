@@ -27,10 +27,12 @@ var Game = (function () {
             var asteroid = new Asteroid(this._bomb, this._asteroids);
             this._asteroids.push(asteroid);
         }
+        var pauseButton = new PauseButton(this);
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
     Game.prototype.togglePause = function () {
-        this._pause != this._pause;
+        this._pause = !this._pause;
+        console.log(this._pause);
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
@@ -211,6 +213,30 @@ var KeyboardInput = (function () {
 window.addEventListener("load", function () {
     new Game();
 });
+var Button = (function () {
+    function Button(tag) {
+        var _this = this;
+        this._div = document.createElement(tag);
+        document.body.appendChild(this._div);
+        this._div.addEventListener("click", function (e) { return _this.handleClick(e); });
+    }
+    Button.prototype.handleClick = function (event) {
+    };
+    return Button;
+}());
+var PauseButton = (function (_super) {
+    __extends(PauseButton, _super);
+    function PauseButton(g) {
+        var _this = _super.call(this, 'pausebutton') || this;
+        _this._game = g;
+        _this._div.innerHTML = "Pause game";
+        return _this;
+    }
+    PauseButton.prototype.handleClick = function (event) {
+        this._game.togglePause();
+    };
+    return PauseButton;
+}(Button));
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(s, l) {

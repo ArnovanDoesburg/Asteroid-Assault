@@ -1,3 +1,8 @@
+@font-face {
+    font-family: gameFont;
+    src: url(./../font/kenvector_future.ttf);
+}
+
 body {
     overflow:hidden;
     margin:0px; padding:0px;
@@ -48,6 +53,17 @@ ship {
     background-image: url(./../img/ship.png);
     width: 75px;
     height: 112px;
+}
+
+pausebutton{
+    right:20px; bottom:20px;
+    width:223px; height:39px;
+    cursor:pointer;
+    border-radius:7px;
+    background-image: url("./../img/button.png");
+    text-align: center;
+    line-height: 2.4;
+    font-family: gameFont;
 }
 
 /* Browser Sync script tag disabler */
