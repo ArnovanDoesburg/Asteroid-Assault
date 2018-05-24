@@ -26,10 +26,16 @@ powerup {
     height: 32px;
 }
 
-bullet {
-    background-image: url(./../img/bullet.png);
+bulletsingle {
+    background-image: url(./../img/bulletsingle.png);
     width: 48px;
     height: 46px;
+}
+
+bulletmulti {
+    background-image: url(./../img/bulletmulti.png);
+    width: 37px;
+    height: 13px;
 }
 
 ship {

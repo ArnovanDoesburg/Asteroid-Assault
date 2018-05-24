@@ -24,9 +24,10 @@ class GameObject {
     public get div() : HTMLElement      {return this._div};
     public set div(value : HTMLElement) {this._div = value};
 
-    constructor(x:number, y:number, tag:string) {
+    constructor(x:number, y:number, rotation:number, tag:string) {
         this._x = x;
         this._y = y;
+        this._rotation = rotation;
 
         this._div = document.createElement(tag);
         document.body.appendChild(this._div);

@@ -9,14 +9,14 @@ class Ship extends GameObject {
     public get bulletList() : Array<Bullet> {return this._bulletList};
 
     constructor() {
-        super(window.innerWidth / 3, window.innerHeight / 2, 'ship');
+        super(window.innerWidth / 3, window.innerHeight / 2, 0, 'ship');
 
-        this._shootBehaviour = new SingleShot();
-
+        this._shootBehaviour = new MultiShot(this);
 
         KeyboardInput.getInstance().addKeycodeCallback(37, () => {this.rotate(-this._angle);});
         KeyboardInput.getInstance().addKeycodeCallback(39, () => {this.rotate(+this._angle);});
         KeyboardInput.getInstance().addKeycodeCallback(38, () => {this.accelerate();});
+        KeyboardInput.getInstance().addKeycodeCallback(32, () => {this._shootBehaviour.shoot()});
     }
 
     private accelerate() {
@@ -26,6 +26,10 @@ class Ship extends GameObject {
 
     private rotate(angle:number) {
         this.rotation += angle;
+    }
+
+    public update() {
+        this._shootBehaviour.updateCooldown();
     }
 
 }

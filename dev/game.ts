@@ -32,13 +32,17 @@ class Game {
                 
                 for (let bullet of ship.bulletList) {
                     for (let asteroid of this._asteroids) {
-                        asteroid.remove(asteroid, this._asteroids);
-                        bullet.remove(bullet, ship.bulletList);
+                        let isColliding = bullet.hasCollision(asteroid);
+                        if (isColliding) {
+                            asteroid.remove(asteroid, this._asteroids);
+                            bullet.remove(bullet, ship.bulletList);
+                        }
                     }
+                    bullet.draw();
+                    bullet.update();
                  }
-
-                ship.update();
-                ship.draw();
+            ship.update();
+            ship.draw();
             }
 
             for (let asteroid of this._asteroids) {

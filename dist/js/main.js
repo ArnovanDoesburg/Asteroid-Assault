@@ -38,9 +38,14 @@ var Game = (function () {
                     var bullet = _e[_d];
                     for (var _f = 0, _g = this._asteroids; _f < _g.length; _f++) {
                         var asteroid = _g[_f];
-                        asteroid.remove(asteroid, this._asteroids);
-                        bullet.remove(bullet, ship.bulletList);
+                        var isColliding = bullet.hasCollision(asteroid);
+                        if (isColliding) {
+                            asteroid.remove(asteroid, this._asteroids);
+                            bullet.remove(bullet, ship.bulletList);
+                        }
                     }
+                    bullet.draw();
+                    bullet.update();
                 }
                 ship.update();
                 ship.draw();
@@ -57,7 +62,7 @@ var Game = (function () {
     return Game;
 }());
 var GameObject = (function () {
-    function GameObject(x, y, tag) {
+    function GameObject(x, y, rotation, tag) {
         this._x = 0;
         this._y = 0;
         this._rotation = 0;
@@ -65,6 +70,7 @@ var GameObject = (function () {
         this._height = 0;
         this._x = x;
         this._y = y;
+        this._rotation = rotation;
         this._div = document.createElement(tag);
         document.body.appendChild(this._div);
         this._width = this._div.clientWidth;
@@ -183,7 +189,7 @@ window.addEventListener("load", function () {
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid() {
-        var _this = _super.call(this, 200, 200, 'asteroid') || this;
+        var _this = _super.call(this, 200, 200, 0, 'asteroid') || this;
         _this._speed = 2;
         return _this;
     }
@@ -193,22 +199,44 @@ var Asteroid = (function (_super) {
 }(GameObject));
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(obj) {
-        return _super.call(this, obj.x, obj.y, 'bullet') || this;
+    function Bullet(x, y, rotation, bulletList, tag) {
+        var _this = _super.call(this, x, y, rotation, tag) || this;
+        _this._speed = 10;
+        _this._speedX = 0;
+        _this._speedY = 0;
+        _this.rotation = rotation;
+        _this._bulletList = bulletList;
+        _this._speedX = _this._speed * Math.cos(rotation / 180 * Math.PI);
+        _this._speedY = _this._speed * Math.sin(rotation / 180 * Math.PI);
+        return _this;
     }
+    Bullet.prototype.update = function () {
+        this.x += this._speedX;
+        this.y += this._speedY;
+        if (this.outsideWindow()) {
+            this.remove(this, this._bulletList);
+        }
+    };
+    Bullet.prototype.outsideWindow = function () {
+        return (this.x > window.innerWidth ||
+            this.x + this.width < 0 ||
+            this.y > window.innerHeight ||
+            this.y + this.height < 0);
+    };
     return Bullet;
 }(GameObject));
 var Ship = (function (_super) {
     __extends(Ship, _super);
     function Ship() {
-        var _this = _super.call(this, window.innerWidth / 3, window.innerHeight / 2, 'ship') || this;
+        var _this = _super.call(this, window.innerWidth / 3, window.innerHeight / 2, 0, 'ship') || this;
         _this._speed = 7;
         _this._angle = 5;
         _this._bulletList = new Array();
-        _this._shootBehaviour = new SingleShot();
+        _this._shootBehaviour = new MultiShot(_this);
         KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(39, function () { _this.rotate(+_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(38, function () { _this.accelerate(); });
+        KeyboardInput.getInstance().addKeycodeCallback(32, function () { _this._shootBehaviour.shoot(); });
         return _this;
     }
     Object.defineProperty(Ship.prototype, "shootBehaviour", {
@@ -230,19 +258,48 @@ var Ship = (function (_super) {
     Ship.prototype.rotate = function (angle) {
         this.rotation += angle;
     };
+    Ship.prototype.update = function () {
+        this._shootBehaviour.updateCooldown();
+    };
     return Ship;
 }(GameObject));
 var MultiShot = (function () {
-    function MultiShot() {
+    function MultiShot(s) {
+        this._cooldown = 0;
+        this._ship = s;
     }
     MultiShot.prototype.shoot = function () {
+        if (this._cooldown > 0) {
+            return;
+        }
+        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation, this._ship.bulletList, 'bulletmulti'));
+        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation + 25, this._ship.bulletList, 'bulletmulti'));
+        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation - 25, this._ship.bulletList, 'bulletmulti'));
+        this._cooldown = 0;
+    };
+    MultiShot.prototype.updateCooldown = function () {
+        if (this._cooldown > 0) {
+            this._cooldown -= 0.5;
+        }
     };
     return MultiShot;
 }());
 var SingleShot = (function () {
-    function SingleShot() {
+    function SingleShot(s) {
+        this._cooldown = 0;
+        this._ship = s;
     }
     SingleShot.prototype.shoot = function () {
+        if (this._cooldown > 0) {
+            return;
+        }
+        this._ship.bulletList.push(new Bullet(this._ship.x, this._ship.y, this._ship.rotation, this._ship.bulletList, 'bulletsingle'));
+        this._cooldown = 10;
+    };
+    SingleShot.prototype.updateCooldown = function () {
+        if (this._cooldown > 0) {
+            this._cooldown -= 0.5;
+        }
     };
     return SingleShot;
 }());

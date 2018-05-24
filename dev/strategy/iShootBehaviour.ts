@@ -1,3 +1,4 @@
 interface iShootBehaviour {
-    shoot() : void;
+    shoot()             : void;
+    updateCooldown()    : void;
 }

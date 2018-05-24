@@ -32,6 +32,12 @@ browser-sync start --server --files "js/main.js"
 
 Make sure to execute this command in the /dist directory and not the root folder.
 
+## Controls
+
+Movement : arrow keys
+Fire : space bar
+Pause : P
+
 ## Pull request
 
 With this pull request I added a new feature branch to a tower defense game which made it possible to restock the towers with bullets by purchasing ammo with gold.
