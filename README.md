@@ -34,9 +34,9 @@ Make sure to execute this command in the /dist directory and not the root folder
 
 ## Controls
 
-Movement : arrow keys
-Fire : space bar
-Pause : P
+* Movement : arrow keys
+* Fire : space bar
+* Pause : P
 
 ## Pull request
 
