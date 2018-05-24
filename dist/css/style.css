@@ -66,6 +66,16 @@ pausebutton{
     font-family: gameFont;
 }
 
+winmessage {
+    text-align: center;
+    line-height: 2.4;
+    font-family: gameFont;
+    color: #fff;
+    font-size: 40px;
+    width: 100%;
+    text-align: center;
+}
+
 /* Browser Sync script tag disabler */
 #__bs_script__ {
     display: none;
