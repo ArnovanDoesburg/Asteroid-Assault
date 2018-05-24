@@ -24,7 +24,7 @@ var Game = (function () {
         this._bomb = new Bomb();
         this._bombs.push(this._bomb);
         for (var i = 0; i < 10; i++) {
-            var asteroid = new Asteroid(this._bomb);
+            var asteroid = new Asteroid(this._bomb, this._asteroids);
             this._asteroids.push(asteroid);
         }
         requestAnimationFrame(function () { return _this.gameLoop(); });
@@ -56,8 +56,7 @@ var Game = (function () {
                     var bomb = _g[_f];
                     var isColliding = ship.hasCollision(bomb);
                     if (isColliding) {
-                        bomb.activate();
-                        bomb.remove(bomb, this._bombs);
+                        bomb.activate(this._bombs);
                     }
                 }
                 for (var _h = 0, _j = ship.bulletList; _h < _j.length; _h++) {
@@ -214,12 +213,14 @@ window.addEventListener("load", function () {
 });
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
-    function Asteroid(s) {
+    function Asteroid(s, l) {
         var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
         _this._speed = 2;
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._rotationSpeed = Math.random() * 2;
+        _this._subject = s;
+        _this._asteroidList = l;
         s.subscribe(_this);
         return _this;
     }
@@ -244,7 +245,16 @@ var Asteroid = (function (_super) {
         }
     };
     Asteroid.prototype.notify = function () {
-        console.log('biem');
+        this.remove(this, this._asteroidList);
+        console.log('notify');
+    };
+    Asteroid.prototype.remove = function (obj, arr) {
+        obj.div.remove();
+        this._subject.unsubscribe(this);
+        var i = arr.indexOf(obj);
+        if (i != -1) {
+            arr.splice(i, 1);
+        }
     };
     return Asteroid;
 }(GameObject));
@@ -257,10 +267,15 @@ var Bomb = (function (_super) {
     }
     Bomb.prototype.subscribe = function (o) {
         this.observers.push(o);
+        console.log('subscribed');
     };
     Bomb.prototype.unsubscribe = function (o) {
+        var i = this.observers.indexOf(o);
+        if (i != -1) {
+            this.observers.splice(i, 1);
+        }
     };
-    Bomb.prototype.activate = function () {
+    Bomb.prototype.activate = function (l) {
         for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
             var o = _a[_i];
             o.notify();

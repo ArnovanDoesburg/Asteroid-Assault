@@ -20,7 +20,7 @@ class Game {
         this._bombs.push(this._bomb);
 
         for (let i = 0; i < 10; i++) {
-            let asteroid = new Asteroid(this._bomb);
+            let asteroid = new Asteroid(this._bomb, this._asteroids);
             this._asteroids.push(asteroid);
         }
 
@@ -54,8 +54,7 @@ class Game {
                 for (let bomb of this._bombs) {
                     let isColliding = ship.hasCollision(bomb);
                     if (isColliding) {
-                        bomb.activate();
-                        bomb.remove(bomb, this._bombs);
+                        bomb.activate(this._bombs);
                     }
                 }
                 

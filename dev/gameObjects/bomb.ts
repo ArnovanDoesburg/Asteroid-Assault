@@ -11,13 +11,17 @@ class Bomb extends GameObject implements Subject {
 
     subscribe(o: Observer): void {
         this.observers.push(o);
+        console.log('subscribed');
     }
 
     unsubscribe(o: Observer): void {
-        
+        let i:number = this.observers.indexOf(o);
+        if(i != -1) {
+            this.observers.splice(i, 1);
+        }
     }
 
-    public activate(): void {
+    public activate(l:Array<Bomb>): void {
         for (let o of this.observers) {
             o.notify();
         }
