@@ -24,7 +24,11 @@ class Game {
             this._asteroids.push(asteroid);
         }
 
-        let pauseButton = new PauseButton(this);
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                this.togglePause();
+            }
+        });
 
         requestAnimationFrame(() => this.gameLoop());
     }
@@ -81,11 +85,14 @@ class Game {
                 }
                 KeyboardInput.getInstance().inputLoop();
             } else {
-                new Message('winmessage', 'YOU WIN!');
+                new Message('message', 'YOU WIN!');
                 this.togglePause();
             }
+        } else {
+            if (this._asteroids.length > 0) {
+                new Message('message', 'PAUSED');
+            }
         }
-
         requestAnimationFrame(() => this.gameLoop());
     }
 

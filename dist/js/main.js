@@ -27,7 +27,11 @@ var Game = (function () {
             var asteroid = new Asteroid(this._bomb, this._asteroids);
             this._asteroids.push(asteroid);
         }
-        var pauseButton = new PauseButton(this);
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                _this.togglePause();
+            }
+        });
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
     Game.prototype.togglePause = function () {
@@ -86,8 +90,13 @@ var Game = (function () {
                 KeyboardInput.getInstance().inputLoop();
             }
             else {
-                new Message('winmessage', 'YOU WIN!');
+                new Message('message', 'YOU WIN!');
                 this.togglePause();
+            }
+        }
+        else {
+            if (this._asteroids.length > 0) {
+                new Message('message', 'PAUSED');
             }
         }
         requestAnimationFrame(function () { return _this.gameLoop(); });
@@ -254,7 +263,7 @@ var Message = (function () {
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(s, l) {
-        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
+        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
         _this._speed = 2;
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
@@ -325,11 +334,12 @@ var Bomb = (function (_super) {
 }(GameObject));
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(x, y, rotation, bulletList, tag) {
+    function Bullet(x, y, rotation, rotationspeed, bulletList, tag) {
         var _this = _super.call(this, x, y, rotation, tag) || this;
         _this._speed = 10;
         _this._speedX = 0;
         _this._speedY = 0;
+        _this._rotationSpeed = rotationspeed;
         _this._bulletList = bulletList;
         _this._speedX = _this._speed * Math.cos(rotation / 180 * Math.PI);
         _this._speedY = _this._speed * Math.sin(rotation / 180 * Math.PI);
@@ -338,6 +348,7 @@ var Bullet = (function (_super) {
     Bullet.prototype.update = function () {
         this.x += this._speedX;
         this.y += this._speedY;
+        this.rotation += this._rotationSpeed;
         if (this.outsideWindow()) {
             this.remove(this, this._bulletList);
         }
@@ -422,9 +433,9 @@ var MultiShot = (function () {
         if (this._cooldown > 0) {
             return;
         }
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, this._ship.bulletList, 'bulletmulti'));
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, this._ship.bulletList, 'bulletmulti'));
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, this._ship.bulletList, 'bulletmulti'));
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, this._ship.bulletList, 'bulletmulti'));
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, this._ship.bulletList, 'bulletmulti'));
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
         this._cooldown = 20;
     };
     MultiShot.prototype.updateCooldown = function () {
@@ -443,7 +454,7 @@ var SingleShot = (function () {
         if (this._cooldown > 0) {
             return;
         }
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, this._ship.bulletList, 'bulletsingle'));
+        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle'));
         this._cooldown = 10;
     };
     SingleShot.prototype.updateCooldown = function () {
