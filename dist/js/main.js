@@ -193,8 +193,8 @@ var Asteroid = (function (_super) {
 }(GameObject));
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function Bullet(obj) {
+        return _super.call(this, obj.x, obj.y, 'bullet') || this;
     }
     return Bullet;
 }(GameObject));
