@@ -64,6 +64,16 @@ message {
     text-align: center;
 }
 
+author {
+    text-align: center;
+    line-height: 2.4;
+    font-family: gameFont;
+    color: #fff;
+    font-size: 15px;
+    width: 100%;
+    z-index: 1;
+}
+
 /* Browser Sync script tag disabler */
 #__bs_script__ {
     display: none;

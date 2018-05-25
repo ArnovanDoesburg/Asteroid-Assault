@@ -10,6 +10,9 @@ class GameManager {
     public pause       : boolean = false;
 
     constructor() {
+
+        new Message('author', 'made by arno van doesburg');
+
         this._ships.push(new Ship());
         this._powerUps.push(new MultiShotUpgrade);
 
@@ -43,7 +46,9 @@ class GameManager {
                         for (let bomb of this._bombs) {
                             if (ship.hasCollision(bomb)) {
                                 bomb.activate();
-                                bomb.remove(bomb, this._bombs);
+                                setTimeout(() => {
+                                    bomb.remove(bomb, this._bombs);
+                                }, 100);
                             }
                         }
 

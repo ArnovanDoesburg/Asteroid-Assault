@@ -52,6 +52,7 @@ var GameManager = (function () {
         this.lose = false;
         this.win = false;
         this.pause = false;
+        new Message('author', 'made by arno van doesburg');
         this._ships.push(new Ship());
         this._powerUps.push(new MultiShotUpgrade);
         this._bombs.push(new Bomb());
@@ -71,17 +72,23 @@ var GameManager = (function () {
         }
     };
     GameManager.prototype.loop = function () {
+        var _this = this;
         if (!this.pause) {
             if (this._asteroids.length > 0) {
                 if (this._ships.length > 0) {
                     for (var _i = 0, _a = this._ships; _i < _a.length; _i++) {
                         var ship = _a[_i];
-                        for (var _b = 0, _c = this._bombs; _b < _c.length; _b++) {
-                            var bomb = _c[_b];
+                        var _loop_1 = function (bomb) {
                             if (ship.hasCollision(bomb)) {
                                 bomb.activate();
-                                bomb.remove(bomb, this._bombs);
+                                setTimeout(function () {
+                                    bomb.remove(bomb, _this._bombs);
+                                }, 100);
                             }
+                        };
+                        for (var _b = 0, _c = this._bombs; _b < _c.length; _b++) {
+                            var bomb = _c[_b];
+                            _loop_1(bomb);
                         }
                         for (var _d = 0, _e = this._powerUps; _d < _e.length; _d++) {
                             var powerup = _e[_d];
