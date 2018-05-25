@@ -21,7 +21,7 @@ class Bomb extends GameObject implements Subject {
         }
     }
 
-    public activate(l:Array<Bomb>): void {
+    public activate(): void {
         for (let o of this.observers) {
             o.notify();
         }

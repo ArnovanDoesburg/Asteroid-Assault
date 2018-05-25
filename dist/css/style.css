@@ -13,7 +13,6 @@ body {
 
 body * {
     position: absolute;
-    display: block;
     margin:0px; padding:0px;
     box-sizing: border-box;
     background-repeat: no-repeat;
@@ -53,17 +52,6 @@ ship {
     background-image: url(./../img/ship.png);
     width: 75px;
     height: 112px;
-}
-
-pausebutton{
-    right:20px; bottom:20px;
-    width:223px; height:39px;
-    cursor:pointer;
-    border-radius:7px;
-    background-image: url("./../img/button.png");
-    text-align: center;
-    line-height: 2.4;
-    font-family: gameFont;
 }
 
 message {

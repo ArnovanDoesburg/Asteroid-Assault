@@ -1,3 +1,3 @@
 window.addEventListener("load", function() {
-    new Game();
+    let game = new Game();
 });

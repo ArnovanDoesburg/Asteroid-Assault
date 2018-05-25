@@ -11,20 +11,52 @@ var __extends = (this && this.__extends) || (function () {
 var Game = (function () {
     function Game() {
         var _this = this;
+        this._gameManager = new GameManager();
+        this._uiManager = new UIManager();
+        requestAnimationFrame(function () { return _this.gameLoop(); });
+    }
+    Game.prototype.resetGame = function () {
+        setTimeout(function () {
+            location.reload();
+        }, 3000);
+    };
+    Game.prototype.gameLoop = function () {
+        var _this = this;
+        this._gameManager.loop();
+        if (this._gameManager.lose) {
+            this._uiManager.createRestartMessage('YOU LOSE!');
+            this.resetGame();
+        }
+        else if (this._gameManager.win) {
+            this._uiManager.createRestartMessage('YOU WIN!');
+            this.resetGame();
+        }
+        else if (this._gameManager.pause) {
+            this._uiManager.createPauseMessage('PRESS "ESCAPE" TO UNPAUSE');
+        }
+        else {
+            this._uiManager.clearMessages();
+        }
+        requestAnimationFrame(function () { return _this.gameLoop(); });
+    };
+    return Game;
+}());
+var GameManager = (function () {
+    function GameManager() {
+        var _this = this;
         this._ships = new Array();
         this._asteroids = new Array();
         this._bullets = new Array();
         this._powerUps = new Array();
         this._bombs = new Array();
-        this._pause = false;
-        var ship = new Ship();
-        this._ships.push(ship);
-        var upgrade = new MultiShotUpgrade();
-        this._powerUps.push(upgrade);
-        this._bomb = new Bomb();
-        this._bombs.push(this._bomb);
-        for (var i = 0; i < 10; i++) {
-            var asteroid = new Asteroid(this._bomb, this._asteroids);
+        this.lose = false;
+        this.win = false;
+        this.pause = false;
+        this._ships.push(new Ship());
+        this._powerUps.push(new MultiShotUpgrade);
+        this._bombs.push(new Bomb());
+        for (var i = 0; i < 20; i++) {
+            var asteroid = new Asteroid(this._bombs, this._asteroids);
             this._asteroids.push(asteroid);
         }
         document.addEventListener('keydown', function (event) {
@@ -32,76 +64,71 @@ var Game = (function () {
                 _this.togglePause();
             }
         });
-        requestAnimationFrame(function () { return _this.gameLoop(); });
     }
-    Game.prototype.togglePause = function () {
-        this._pause = !this._pause;
-        console.log(this._pause);
+    GameManager.prototype.togglePause = function () {
+        if (!this.win && !this.lose) {
+            this.pause = !this.pause;
+        }
     };
-    Game.prototype.gameLoop = function () {
-        var _this = this;
-        if (!this._pause) {
+    GameManager.prototype.loop = function () {
+        if (!this.pause) {
             if (this._asteroids.length > 0) {
-                for (var _i = 0, _a = this._ships; _i < _a.length; _i++) {
-                    var ship = _a[_i];
-                    for (var _b = 0, _c = this._asteroids; _b < _c.length; _b++) {
-                        var asteroid = _c[_b];
-                        var isColliding = ship.hasCollision(asteroid);
-                        if (isColliding) {
-                            ship.remove(ship, this._ships);
-                        }
-                    }
-                    for (var _d = 0, _e = this._powerUps; _d < _e.length; _d++) {
-                        var powerup = _e[_d];
-                        var isColliding = ship.hasCollision(powerup);
-                        if (isColliding) {
-                            ship.shootBehaviour = new MultiShot(ship);
-                            powerup.remove(powerup, this._powerUps);
-                        }
-                    }
-                    for (var _f = 0, _g = this._bombs; _f < _g.length; _f++) {
-                        var bomb = _g[_f];
-                        var isColliding = ship.hasCollision(bomb);
-                        if (isColliding) {
-                            bomb.activate(this._bombs);
-                        }
-                    }
-                    for (var _h = 0, _j = ship.bulletList; _h < _j.length; _h++) {
-                        var bullet = _j[_h];
-                        for (var _k = 0, _l = this._asteroids; _k < _l.length; _k++) {
-                            var asteroid = _l[_k];
-                            var isColliding = bullet.hasCollision(asteroid);
-                            if (isColliding) {
-                                asteroid.remove(asteroid, this._asteroids);
-                                bullet.remove(bullet, ship.bulletList);
+                if (this._ships.length > 0) {
+                    for (var _i = 0, _a = this._ships; _i < _a.length; _i++) {
+                        var ship = _a[_i];
+                        for (var _b = 0, _c = this._bombs; _b < _c.length; _b++) {
+                            var bomb = _c[_b];
+                            if (ship.hasCollision(bomb)) {
+                                bomb.activate();
+                                bomb.remove(bomb, this._bombs);
                             }
                         }
-                        bullet.draw();
-                        bullet.update();
+                        for (var _d = 0, _e = this._powerUps; _d < _e.length; _d++) {
+                            var powerup = _e[_d];
+                            if (ship.hasCollision(powerup)) {
+                                ship.shootBehaviour = new MultiShot(ship);
+                                powerup.remove(powerup, this._powerUps);
+                            }
+                        }
+                        for (var _f = 0, _g = ship.bulletList; _f < _g.length; _f++) {
+                            var bullet = _g[_f];
+                            bullet.update();
+                            bullet.draw();
+                        }
+                        for (var _h = 0, _j = this._asteroids; _h < _j.length; _h++) {
+                            var asteroid = _j[_h];
+                            for (var _k = 0, _l = ship.bulletList; _k < _l.length; _k++) {
+                                var bullet = _l[_k];
+                                if (bullet.hasCollision(asteroid)) {
+                                    asteroid.remove(asteroid, this._asteroids);
+                                    bullet.remove(bullet, ship.bulletList);
+                                }
+                            }
+                            if (ship.hasCollision(asteroid)) {
+                                ship.remove(ship, this._ships);
+                            }
+                            asteroid.update();
+                            asteroid.draw();
+                        }
+                        ship.update();
+                        ship.draw();
                     }
-                    ship.update();
-                    ship.draw();
+                    KeyboardInput.getInstance().inputLoop();
                 }
-                for (var _m = 0, _o = this._asteroids; _m < _o.length; _m++) {
-                    var asteroid = _o[_m];
-                    asteroid.draw();
-                    asteroid.update();
+                else {
+                    if (!this.lose) {
+                        this.lose = true;
+                    }
                 }
-                KeyboardInput.getInstance().inputLoop();
             }
             else {
-                new Message('message', 'YOU WIN!');
-                this.togglePause();
+                if (!this.win) {
+                    this.win = true;
+                }
             }
         }
-        else {
-            if (this._asteroids.length > 0) {
-                new Message('message', 'PAUSED');
-            }
-        }
-        requestAnimationFrame(function () { return _this.gameLoop(); });
     };
-    return Game;
+    return GameManager;
 }());
 var GameObject = (function () {
     function GameObject(x, y, rotation, tag) {
@@ -226,38 +253,42 @@ var KeyboardInput = (function () {
     return KeyboardInput;
 }());
 window.addEventListener("load", function () {
-    new Game();
+    var game = new Game();
 });
-var Button = (function () {
-    function Button(tag) {
-        var _this = this;
-        this._div = document.createElement(tag);
-        document.body.appendChild(this._div);
-        this._div.addEventListener("click", function (e) { return _this.handleClick(e); });
+var UIManager = (function () {
+    function UIManager() {
     }
-    Button.prototype.handleClick = function (event) {
+    UIManager.prototype.createRestartMessage = function (content) {
+        if (!document.querySelector('message')) {
+            this._message = new Message('message', content);
+            document.body.appendChild(this._message.div);
+        }
     };
-    return Button;
+    UIManager.prototype.createPauseMessage = function (content) {
+        if (!document.querySelector('message')) {
+            this._message = new Message('message', content);
+            document.body.appendChild(this._message.div);
+        }
+    };
+    UIManager.prototype.clearMessages = function () {
+        var message = document.querySelector('message');
+        if (message) {
+            message.remove();
+        }
+    };
+    return UIManager;
 }());
-var PauseButton = (function (_super) {
-    __extends(PauseButton, _super);
-    function PauseButton(g) {
-        var _this = _super.call(this, 'pausebutton') || this;
-        _this._game = g;
-        _this._div.innerHTML = "Pause game";
-        return _this;
-    }
-    PauseButton.prototype.handleClick = function (event) {
-        this._game.togglePause();
-    };
-    return PauseButton;
-}(Button));
 var Message = (function () {
     function Message(tag, content) {
         this._div = document.createElement(tag);
         document.body.appendChild(this._div);
         this._div.innerHTML = content;
     }
+    Object.defineProperty(Message.prototype, "div", {
+        get: function () { return this._div; },
+        enumerable: true,
+        configurable: true
+    });
     return Message;
 }());
 var Asteroid = (function (_super) {
@@ -268,9 +299,14 @@ var Asteroid = (function (_super) {
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._rotationSpeed = Math.random() * 2;
-        _this._subject = s;
+        if (s.length > 0) {
+            for (var _i = 0, s_1 = s; _i < s_1.length; _i++) {
+                var bomb = s_1[_i];
+                bomb.subscribe(_this);
+            }
+        }
+        _this._bombs = s;
         _this._asteroidList = l;
-        s.subscribe(_this);
         return _this;
     }
     Asteroid.prototype.update = function () {
@@ -299,7 +335,10 @@ var Asteroid = (function (_super) {
     };
     Asteroid.prototype.remove = function (obj, arr) {
         obj.div.remove();
-        this._subject.unsubscribe(this);
+        for (var _i = 0, _a = this._bombs; _i < _a.length; _i++) {
+            var bomb = _a[_i];
+            bomb.unsubscribe(this);
+        }
         var i = arr.indexOf(obj);
         if (i != -1) {
             arr.splice(i, 1);
@@ -324,7 +363,7 @@ var Bomb = (function (_super) {
             this.observers.splice(i, 1);
         }
     };
-    Bomb.prototype.activate = function (l) {
+    Bomb.prototype.activate = function () {
         for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
             var o = _a[_i];
             o.notify();
@@ -427,16 +466,23 @@ var MultiShotUpgrade = (function (_super) {
 var MultiShot = (function () {
     function MultiShot(s) {
         this._cooldown = 0;
+        this._ammo = 3;
         this._ship = s;
     }
     MultiShot.prototype.shoot = function () {
         if (this._cooldown > 0) {
             return;
         }
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, this._ship.bulletList, 'bulletmulti'));
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, this._ship.bulletList, 'bulletmulti'));
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
-        this._cooldown = 20;
+        if (this._ammo > 0) {
+            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, this._ship.bulletList, 'bulletmulti'));
+            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, this._ship.bulletList, 'bulletmulti'));
+            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
+            this._ammo -= 1;
+            this._cooldown = 15;
+        }
+        else {
+            this._ship.shootBehaviour = new SingleShot(this._ship);
+        }
     };
     MultiShot.prototype.updateCooldown = function () {
         if (this._cooldown > 0) {

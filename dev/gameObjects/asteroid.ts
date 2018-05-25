@@ -5,20 +5,24 @@ class Asteroid extends GameObject implements Observer{
     
     private _rotationSpeed : number = Math.random()*2;
 
-    private _subject : Subject;
+    private _bombs        : Array<Bomb>;
     private _asteroidList : Array<Asteroid>;
 
-    constructor(s:Subject, l:Array<Asteroid>) {
+    constructor(s:Array<Bomb>, l:Array<Asteroid>) {
         super(
             Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2),
             Math.floor((Math.random() * window.innerHeight) + 1), 
             0, 
             'asteroid');
 
-            this._subject = s;
+            if (s.length > 0) {
+                for (let bomb of s) {
+                    bomb.subscribe(this);
+                }
+            }
+           
+            this._bombs = s;
             this._asteroidList = l;
-
-            s.subscribe(this);
     }
 
     public update() : void {
@@ -53,7 +57,10 @@ class Asteroid extends GameObject implements Observer{
 
     public remove(obj:GameObject, arr:Array<any>) {
         obj.div.remove();
-        this._subject.unsubscribe(this);
+
+        for (let bomb of this._bombs) {
+            bomb.unsubscribe(this);
+        }
 
         let i:number = arr.indexOf(obj);
         if(i != -1) {

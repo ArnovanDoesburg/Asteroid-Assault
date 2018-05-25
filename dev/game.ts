@@ -1,98 +1,37 @@
 class Game {
-    private _ships       : Array<Ship> = new Array();
-    private _asteroids   : Array<Asteroid> = new Array();
-    private _bullets     : Array<Bullet> = new Array();
-    private _powerUps    : Array<GameObject> = new Array();
-    private _bombs       : Array<Bomb> = new Array();
+    private _gameManager    : GameManager;
+    private _uiManager      : UIManager;
     
-    private _pause       : boolean = false;
-    private _bomb        : Bomb;
-
     constructor() {
 
-        let ship = new Ship();
-        this._ships.push(ship);
-
-        let upgrade = new MultiShotUpgrade();
-        this._powerUps.push(upgrade);
-
-        this._bomb = new Bomb();
-        this._bombs.push(this._bomb);
-
-        for (let i = 0; i < 10; i++) {
-            let asteroid = new Asteroid(this._bomb, this._asteroids);
-            this._asteroids.push(asteroid);
-        }
-
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape' || event.keyCode === 27) {
-                this.togglePause();
-            }
-        });
+        this._gameManager = new GameManager();
+        this._uiManager = new UIManager();
 
         requestAnimationFrame(() => this.gameLoop());
     }
 
-    public togglePause() {
-        this._pause = !this._pause;
-        console.log(this._pause);
+    private resetGame() {
+        setTimeout(() => {
+            location.reload();
+        }, 3000);
     }
 
-    private gameLoop() {
-    
-        if (!this._pause) {
-            if (this._asteroids.length > 0) {
-                for (let ship of this._ships) {
-                    for (let asteroid of this._asteroids) {
-                        let isColliding = ship.hasCollision(asteroid);
-                        if (isColliding) {
-                            ship.remove(ship, this._ships);
-                        }
-                    }
+    private gameLoop() {   
 
-                    for (let powerup of this._powerUps) {
-                        let isColliding = ship.hasCollision(powerup);
-                        if (isColliding) {
-                            ship.shootBehaviour = new MultiShot(ship);
-                            powerup.remove(powerup, this._powerUps);
-                        }
-                    }
+        this._gameManager.loop();
 
-                    for (let bomb of this._bombs) {
-                        let isColliding = ship.hasCollision(bomb);
-                        if (isColliding) {
-                            bomb.activate(this._bombs);
-                        }
-                    }
-                    
-                    for (let bullet of ship.bulletList) {
-                        for (let asteroid of this._asteroids) {
-                            let isColliding = bullet.hasCollision(asteroid);
-                            if (isColliding) {
-                                asteroid.remove(asteroid, this._asteroids);
-                                bullet.remove(bullet, ship.bulletList);
-                            }
-                        }
-                        bullet.draw();
-                        bullet.update();
-                    }
-                ship.update();
-                ship.draw();
-                }
-                for (let asteroid of this._asteroids) {
-                    asteroid.draw();
-                    asteroid.update();
-                }
-                KeyboardInput.getInstance().inputLoop();
-            } else {
-                new Message('message', 'YOU WIN!');
-                this.togglePause();
-            }
+        if (this._gameManager.lose) {
+            this._uiManager.createRestartMessage('YOU LOSE!');
+            this.resetGame();
+        } else if (this._gameManager.win) {
+            this._uiManager.createRestartMessage('YOU WIN!');
+            this.resetGame();
+        } else if (this._gameManager.pause) {
+            this._uiManager.createPauseMessage('PRESS "ESCAPE" TO UNPAUSE');
         } else {
-            if (this._asteroids.length > 0) {
-                new Message('message', 'PAUSED');
-            }
+            this._uiManager.clearMessages();
         }
+
         requestAnimationFrame(() => this.gameLoop());
     }
 

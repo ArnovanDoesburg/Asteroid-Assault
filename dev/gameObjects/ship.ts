@@ -2,6 +2,8 @@ class Ship extends GameObject {
     private _speed          : number = 7;
     private _angle          : number = 5
 
+    // Ship met eigen bulletlist?
+
     private _bulletList     : Array<Bullet> = new Array();
     private _shootBehaviour : iShootBehaviour;
 
