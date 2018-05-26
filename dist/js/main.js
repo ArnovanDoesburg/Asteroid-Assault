@@ -69,6 +69,8 @@ var GameManager = (function () {
     GameManager.prototype.togglePause = function () {
         if (!this.win && !this.lose) {
             this.pause = !this.pause;
+            var audio = new Audio('./../sfx/sfx_twotone.ogg');
+            audio.play();
         }
     };
     GameManager.prototype.loop = function () {
@@ -125,12 +127,16 @@ var GameManager = (function () {
                 else {
                     if (!this.lose) {
                         this.lose = true;
+                        var audio = new Audio('./../sfx/sfx_lose.ogg');
+                        audio.play();
                     }
                 }
             }
             else {
                 if (!this.win) {
                     this.win = true;
+                    var audio = new Audio('./../sfx/sfx_win.ogg');
+                    audio.play();
                 }
             }
         }
@@ -475,6 +481,8 @@ var MultiShot = (function () {
         this._cooldown = 0;
         this._ammo = 3;
         this._ship = s;
+        var audio = new Audio('./../sfx/sfx_shieldUp.ogg');
+        audio.play();
     }
     MultiShot.prototype.shoot = function () {
         if (this._cooldown > 0) {
@@ -483,9 +491,13 @@ var MultiShot = (function () {
         if (this._ammo > 0) {
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, this._ship.bulletList, 'bulletmulti'));
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, this._ship.bulletList, 'bulletmulti'));
+            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 50, 0, this._ship.bulletList, 'bulletmulti'));
+            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 50, 0, this._ship.bulletList, 'bulletmulti'));
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
             this._ammo -= 1;
             this._cooldown = 15;
+            var audio = new Audio('./../sfx/sfx_laser2.ogg');
+            audio.play();
         }
         else {
             this._ship.shootBehaviour = new SingleShot(this._ship);
@@ -508,7 +520,9 @@ var SingleShot = (function () {
             return;
         }
         this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle'));
-        this._cooldown = 10;
+        this._cooldown = 11;
+        var audio = new Audio('./../sfx/sfx_laser1.ogg');
+        audio.play();
     };
     SingleShot.prototype.updateCooldown = function () {
         if (this._cooldown > 0) {

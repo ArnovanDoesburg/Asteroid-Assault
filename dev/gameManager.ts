@@ -33,6 +33,8 @@ class GameManager {
     private togglePause() {
         if (!this.win && !this.lose) {
             this.pause = !this.pause;
+            var audio = new Audio('./../sfx/sfx_twotone.ogg');
+            audio.play();
         }
     }
 
@@ -88,11 +90,15 @@ class GameManager {
                 } else {
                     if (!this.lose){
                         this.lose = true;
+                        var audio = new Audio('./../sfx/sfx_lose.ogg');
+                        audio.play();
                     }
                 }
             } else {
                 if (!this.win){
                     this.win = true;
+                    var audio = new Audio('./../sfx/sfx_win.ogg');
+                    audio.play();
                 }
             }
         }
