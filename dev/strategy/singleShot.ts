@@ -14,8 +14,7 @@ class SingleShot implements iShootBehaviour {
         
         this._cooldown = 11;
 
-        var audio = new Audio('./../sfx/sfx_laser1.ogg');
-        audio.play();
+        AudioManager.playSound('./../sfx/sfx_laser1.ogg');
 
     }
 

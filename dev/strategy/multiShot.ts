@@ -5,8 +5,7 @@ class MultiShot implements iShootBehaviour {
 
     constructor(s:Ship) {
         this._ship = s;
-        var audio = new Audio('./../sfx/sfx_shieldUp.ogg');
-        audio.play();
+        AudioManager.playSound('./../sfx/sfx_shieldUp.ogg');
     }
 
     public shoot() : void {
@@ -19,10 +18,11 @@ class MultiShot implements iShootBehaviour {
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 50, 0, this._ship.bulletList, 'bulletmulti'));
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 50, 0, this._ship.bulletList, 'bulletmulti'));
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
+            
             this._ammo -= 1;    
             this._cooldown = 15;
-            var audio = new Audio('./../sfx/sfx_laser2.ogg');
-            audio.play();
+
+            AudioManager.playSound('./../sfx/sfx_laser2.ogg');
         } else {
             this._ship.shootBehaviour = new SingleShot(this._ship);
         }

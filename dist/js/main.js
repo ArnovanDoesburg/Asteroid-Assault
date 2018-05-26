@@ -41,108 +41,6 @@ var Game = (function () {
     };
     return Game;
 }());
-var GameManager = (function () {
-    function GameManager() {
-        var _this = this;
-        this._ships = new Array();
-        this._asteroids = new Array();
-        this._bullets = new Array();
-        this._powerUps = new Array();
-        this._bombs = new Array();
-        this.lose = false;
-        this.win = false;
-        this.pause = false;
-        new Message('author', 'made by arno van doesburg');
-        this._ships.push(new Ship());
-        this._powerUps.push(new MultiShotUpgrade);
-        this._bombs.push(new Bomb());
-        for (var i = 0; i < 20; i++) {
-            var asteroid = new Asteroid(this._bombs, this._asteroids);
-            this._asteroids.push(asteroid);
-        }
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' || event.keyCode === 27) {
-                _this.togglePause();
-            }
-        });
-    }
-    GameManager.prototype.togglePause = function () {
-        if (!this.win && !this.lose) {
-            this.pause = !this.pause;
-            var audio = new Audio('./../sfx/sfx_twotone.ogg');
-            audio.play();
-        }
-    };
-    GameManager.prototype.loop = function () {
-        var _this = this;
-        if (!this.pause) {
-            if (this._asteroids.length > 0) {
-                if (this._ships.length > 0) {
-                    for (var _i = 0, _a = this._ships; _i < _a.length; _i++) {
-                        var ship = _a[_i];
-                        var _loop_1 = function (bomb) {
-                            if (ship.hasCollision(bomb)) {
-                                bomb.activate();
-                                setTimeout(function () {
-                                    bomb.remove(bomb, _this._bombs);
-                                }, 100);
-                            }
-                        };
-                        for (var _b = 0, _c = this._bombs; _b < _c.length; _b++) {
-                            var bomb = _c[_b];
-                            _loop_1(bomb);
-                        }
-                        for (var _d = 0, _e = this._powerUps; _d < _e.length; _d++) {
-                            var powerup = _e[_d];
-                            if (ship.hasCollision(powerup)) {
-                                ship.shootBehaviour = new MultiShot(ship);
-                                powerup.remove(powerup, this._powerUps);
-                            }
-                        }
-                        for (var _f = 0, _g = ship.bulletList; _f < _g.length; _f++) {
-                            var bullet = _g[_f];
-                            bullet.update();
-                            bullet.draw();
-                        }
-                        for (var _h = 0, _j = this._asteroids; _h < _j.length; _h++) {
-                            var asteroid = _j[_h];
-                            for (var _k = 0, _l = ship.bulletList; _k < _l.length; _k++) {
-                                var bullet = _l[_k];
-                                if (bullet.hasCollision(asteroid)) {
-                                    asteroid.remove(asteroid, this._asteroids);
-                                    bullet.remove(bullet, ship.bulletList);
-                                }
-                            }
-                            if (ship.hasCollision(asteroid)) {
-                                ship.remove(ship, this._ships);
-                            }
-                            asteroid.update();
-                            asteroid.draw();
-                        }
-                        ship.update();
-                        ship.draw();
-                    }
-                    KeyboardInput.getInstance().inputLoop();
-                }
-                else {
-                    if (!this.lose) {
-                        this.lose = true;
-                        var audio = new Audio('./../sfx/sfx_lose.ogg');
-                        audio.play();
-                    }
-                }
-            }
-            else {
-                if (!this.win) {
-                    this.win = true;
-                    var audio = new Audio('./../sfx/sfx_win.ogg');
-                    audio.play();
-                }
-            }
-        }
-    };
-    return GameManager;
-}());
 var GameObject = (function () {
     function GameObject(x, y, rotation, tag) {
         this._x = 0;
@@ -226,44 +124,6 @@ var GameObject = (function () {
         }
     };
     return GameObject;
-}());
-var KeyboardInput = (function () {
-    function KeyboardInput() {
-        var _this = this;
-        this.keyCallback = {};
-        this.keyDown = {};
-        this.keyboardDown = function (event) {
-            event.preventDefault();
-            _this.keyDown[event.keyCode] = true;
-        };
-        this.keyboardUp = function (event) {
-            _this.keyDown[event.keyCode] = false;
-        };
-        this.addKeycodeCallback = function (keycode, f) {
-            _this.keyCallback[keycode] = f;
-            _this.keyDown[keycode] = false;
-        };
-        this.inputLoop = function () {
-            for (var key in _this.keyDown) {
-                var is_down = _this.keyDown[key];
-                if (is_down) {
-                    var callback = _this.keyCallback[key];
-                    if (callback != null) {
-                        callback();
-                    }
-                }
-            }
-        };
-        document.addEventListener('keydown', this.keyboardDown);
-        document.addEventListener('keyup', this.keyboardUp);
-    }
-    KeyboardInput.getInstance = function () {
-        if (!KeyboardInput._instance) {
-            KeyboardInput._instance = new KeyboardInput();
-        }
-        return KeyboardInput._instance;
-    };
-    return KeyboardInput;
 }());
 window.addEventListener("load", function () {
     var game = new Game();
@@ -466,6 +326,152 @@ var Ship = (function (_super) {
     };
     return Ship;
 }(GameObject));
+var AudioManager = (function () {
+    function AudioManager() {
+    }
+    AudioManager.playSound = function (s) {
+        var audio = new Audio(s);
+        audio.play();
+    };
+    return AudioManager;
+}());
+var GameManager = (function () {
+    function GameManager() {
+        var _this = this;
+        this._ships = new Array();
+        this._asteroids = new Array();
+        this._bullets = new Array();
+        this._powerUps = new Array();
+        this._bombs = new Array();
+        this.lose = false;
+        this.win = false;
+        this.pause = false;
+        new Message('author', 'made by arno van doesburg');
+        this._ships.push(new Ship());
+        this._powerUps.push(new MultiShotUpgrade);
+        this._bombs.push(new Bomb());
+        for (var i = 0; i < 20; i++) {
+            var asteroid = new Asteroid(this._bombs, this._asteroids);
+            this._asteroids.push(asteroid);
+        }
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                _this.togglePause();
+            }
+        });
+    }
+    GameManager.prototype.togglePause = function () {
+        if (!this.win && !this.lose) {
+            this.pause = !this.pause;
+            AudioManager.playSound('./../sfx/sfx_twotone.ogg');
+        }
+    };
+    GameManager.prototype.loop = function () {
+        var _this = this;
+        if (!this.pause) {
+            if (this._asteroids.length > 0) {
+                if (this._ships.length > 0) {
+                    for (var _i = 0, _a = this._ships; _i < _a.length; _i++) {
+                        var ship = _a[_i];
+                        var _loop_1 = function (bomb) {
+                            if (ship.hasCollision(bomb)) {
+                                bomb.activate();
+                                setTimeout(function () {
+                                    bomb.remove(bomb, _this._bombs);
+                                }, 100);
+                            }
+                        };
+                        for (var _b = 0, _c = this._bombs; _b < _c.length; _b++) {
+                            var bomb = _c[_b];
+                            _loop_1(bomb);
+                        }
+                        for (var _d = 0, _e = this._powerUps; _d < _e.length; _d++) {
+                            var powerup = _e[_d];
+                            if (ship.hasCollision(powerup)) {
+                                ship.shootBehaviour = new MultiShot(ship);
+                                powerup.remove(powerup, this._powerUps);
+                            }
+                        }
+                        for (var _f = 0, _g = ship.bulletList; _f < _g.length; _f++) {
+                            var bullet = _g[_f];
+                            bullet.update();
+                            bullet.draw();
+                        }
+                        for (var _h = 0, _j = this._asteroids; _h < _j.length; _h++) {
+                            var asteroid = _j[_h];
+                            for (var _k = 0, _l = ship.bulletList; _k < _l.length; _k++) {
+                                var bullet = _l[_k];
+                                if (bullet.hasCollision(asteroid)) {
+                                    asteroid.remove(asteroid, this._asteroids);
+                                    bullet.remove(bullet, ship.bulletList);
+                                }
+                            }
+                            if (ship.hasCollision(asteroid)) {
+                                ship.remove(ship, this._ships);
+                            }
+                            asteroid.update();
+                            asteroid.draw();
+                        }
+                        ship.update();
+                        ship.draw();
+                    }
+                    KeyboardInput.getInstance().inputLoop();
+                }
+                else {
+                    if (!this.lose) {
+                        this.lose = true;
+                        AudioManager.playSound('./../sfx/sfx_lose.ogg');
+                    }
+                }
+            }
+            else {
+                if (!this.win) {
+                    this.win = true;
+                    AudioManager.playSound('./../sfx/sfx_win.ogg');
+                }
+            }
+        }
+    };
+    return GameManager;
+}());
+var KeyboardInput = (function () {
+    function KeyboardInput() {
+        var _this = this;
+        this.keyCallback = {};
+        this.keyDown = {};
+        this.keyboardDown = function (event) {
+            event.preventDefault();
+            _this.keyDown[event.keyCode] = true;
+        };
+        this.keyboardUp = function (event) {
+            _this.keyDown[event.keyCode] = false;
+        };
+        this.addKeycodeCallback = function (keycode, f) {
+            _this.keyCallback[keycode] = f;
+            _this.keyDown[keycode] = false;
+        };
+        this.inputLoop = function () {
+            for (var key in _this.keyDown) {
+                var is_down = _this.keyDown[key];
+                if (is_down) {
+                    var callback = _this.keyCallback[key];
+                    if (callback != null) {
+                        callback();
+                    }
+                }
+            }
+        };
+        document.addEventListener('keydown', this.keyboardDown);
+        document.addEventListener('keyup', this.keyboardUp);
+    }
+    KeyboardInput.getInstance = function () {
+        if (!KeyboardInput._instance) {
+            KeyboardInput._instance = new KeyboardInput();
+        }
+        return KeyboardInput._instance;
+    };
+    return KeyboardInput;
+}());
 var MultiShotUpgrade = (function (_super) {
     __extends(MultiShotUpgrade, _super);
     function MultiShotUpgrade() {
@@ -481,8 +487,7 @@ var MultiShot = (function () {
         this._cooldown = 0;
         this._ammo = 3;
         this._ship = s;
-        var audio = new Audio('./../sfx/sfx_shieldUp.ogg');
-        audio.play();
+        AudioManager.playSound('./../sfx/sfx_shieldUp.ogg');
     }
     MultiShot.prototype.shoot = function () {
         if (this._cooldown > 0) {
@@ -496,8 +501,7 @@ var MultiShot = (function () {
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
             this._ammo -= 1;
             this._cooldown = 15;
-            var audio = new Audio('./../sfx/sfx_laser2.ogg');
-            audio.play();
+            AudioManager.playSound('./../sfx/sfx_laser2.ogg');
         }
         else {
             this._ship.shootBehaviour = new SingleShot(this._ship);
@@ -521,8 +525,7 @@ var SingleShot = (function () {
         }
         this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle'));
         this._cooldown = 11;
-        var audio = new Audio('./../sfx/sfx_laser1.ogg');
-        audio.play();
+        AudioManager.playSound('./../sfx/sfx_laser1.ogg');
     };
     SingleShot.prototype.updateCooldown = function () {
         if (this._cooldown > 0) {
