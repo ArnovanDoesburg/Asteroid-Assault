@@ -11,7 +11,6 @@ class Bomb extends GameObject implements Subject {
 
     subscribe(o: Observer): void {
         this.observers.push(o);
-        console.log('subscribed');
     }
 
     unsubscribe(o: Observer): void {

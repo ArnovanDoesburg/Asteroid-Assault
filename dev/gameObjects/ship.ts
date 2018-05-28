@@ -4,8 +4,6 @@ class Ship extends GameObject {
     private _lives          : number = 3;
     private _invincible     : boolean = false;
 
-    // Ship met eigen bulletlist?
-
     private _bulletList     : Array<Bullet> = new Array();
     private _shootBehaviour : iShootBehaviour;
 

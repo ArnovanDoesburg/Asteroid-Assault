@@ -34,7 +34,6 @@ class Asteroid extends GameObject implements Observer{
 
     public notify() {
         this.remove(this, this._asteroidList);
-        console.log('notify');
     }
 
     public remove(obj:GameObject, arr:Array<any>) {

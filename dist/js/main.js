@@ -204,7 +204,6 @@ var Asteroid = (function (_super) {
     };
     Asteroid.prototype.notify = function () {
         this.remove(this, this._asteroidList);
-        console.log('notify');
     };
     Asteroid.prototype.remove = function (obj, arr) {
         obj.div.remove();
@@ -228,7 +227,6 @@ var Bomb = (function (_super) {
     }
     Bomb.prototype.subscribe = function (o) {
         this.observers.push(o);
-        console.log('subscribed');
     };
     Bomb.prototype.unsubscribe = function (o) {
         var i = this.observers.indexOf(o);
