@@ -21,7 +21,7 @@ class Bullet extends GameObject {
         this.rotation += this._rotationSpeed;
 
         if (this.outsideWindow()) {
-            this.remove(this, this._bulletList);
+            super.remove();
         }
     }
 

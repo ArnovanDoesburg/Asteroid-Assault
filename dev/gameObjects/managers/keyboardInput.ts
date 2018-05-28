@@ -8,7 +8,7 @@ class KeyboardInput {
        document.addEventListener('keyup', this.keyboardUp);
     }
     public static getInstance() {
-        if (! KeyboardInput._instance) {
+        if (!KeyboardInput._instance) {
             KeyboardInput._instance = new KeyboardInput()
             }
         return KeyboardInput._instance

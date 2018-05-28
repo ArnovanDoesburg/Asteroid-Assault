@@ -10,15 +10,14 @@ class SingleShot implements iShootBehaviour {
         if (this._cooldown > 0) {
             return;
         }
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle'));
+        new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle');
         
         this._cooldown = 11;
 
         AudioManager.playSound('./../sfx/lasers/sfx_laser1.wav');
-
     }
 
-    public updateCooldown() : void {
+    public update() : void {
         if (this._cooldown > 0) {
             this._cooldown -= 0.5;
         }

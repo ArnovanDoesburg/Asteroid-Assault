@@ -35,6 +35,7 @@ class GameObject {
         this._width  = this._div.clientWidth;
         this._height = this._div.clientHeight;
 
+        GameManager.getInstance().addGameObject(this);
         this.draw();
     }
 
@@ -71,12 +72,8 @@ class GameObject {
         }
     }
 
-    public remove(obj:GameObject, arr:Array<any>) {
-        obj.div.remove();
-        
-        let i:number = arr.indexOf(obj);
-        if(i != -1) {
-            arr.splice(i, 1);
-        }
+    public remove() {
+        this.div.remove();
+        GameManager.getInstance().removeGameObject(this);
     }
 }

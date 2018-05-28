@@ -29,7 +29,7 @@ class MultiShot implements iShootBehaviour {
 
     }
 
-    public updateCooldown() : void {
+    public update() : void {
         if (this._cooldown > 0) {
             this._cooldown -= 0.5;
         }

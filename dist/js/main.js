@@ -13,6 +13,8 @@ var Game = (function () {
         var _this = this;
         this._gameManager = GameManager.getInstance();
         this._uiManager = new UIManager();
+        new Ship();
+        new Asteroid();
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
     Game.prototype.resetGame = function () {
@@ -26,20 +28,6 @@ var Game = (function () {
     Game.prototype.gameLoop = function () {
         var _this = this;
         this._gameManager.loop();
-        if (this._gameManager.lose) {
-            this._uiManager.createRestartMessage('YOU LOSE!');
-            this.resetGame();
-        }
-        else if (this._gameManager.win) {
-            this._uiManager.createRestartMessage('YOU WIN!');
-            this.resetGame();
-        }
-        else if (this._gameManager.pause) {
-            this._uiManager.createPauseMessage('PRESS "ESCAPE" TO UNPAUSE');
-        }
-        else {
-            this._uiManager.clearMessages();
-        }
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
@@ -58,6 +46,7 @@ var GameObject = (function () {
         document.body.appendChild(this._div);
         this._width = this._div.clientWidth;
         this._height = this._div.clientHeight;
+        GameManager.getInstance().addGameObject(this);
         this.draw();
     }
     Object.defineProperty(GameObject.prototype, "x", {
@@ -133,12 +122,9 @@ var GameObject = (function () {
             this.y = 0 - this.div.clientHeight;
         }
     };
-    GameObject.prototype.remove = function (obj, arr) {
-        obj.div.remove();
-        var i = arr.indexOf(obj);
-        if (i != -1) {
-            arr.splice(i, 1);
-        }
+    GameObject.prototype.remove = function () {
+        this.div.remove();
+        GameManager.getInstance().removeGameObject(this);
     };
     return GameObject;
 }());
@@ -160,20 +146,12 @@ var Message = (function () {
 }());
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
-    function Asteroid(s, l) {
+    function Asteroid() {
         var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
         _this._speed = 2;
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._rotationSpeed = Math.random() * 2;
-        if (s.length > 0) {
-            for (var _i = 0, s_1 = s; _i < s_1.length; _i++) {
-                var bomb = s_1[_i];
-                bomb.subscribe(_this);
-            }
-        }
-        _this._bombs = s;
-        _this._asteroidList = l;
         return _this;
     }
     Asteroid.prototype.update = function () {
@@ -183,18 +161,10 @@ var Asteroid = (function (_super) {
         _super.prototype.outsideWindow.call(this);
     };
     Asteroid.prototype.notify = function () {
-        this.remove(this, this._asteroidList);
     };
-    Asteroid.prototype.remove = function (obj, arr) {
-        obj.div.remove();
-        for (var _i = 0, _a = this._bombs; _i < _a.length; _i++) {
-            var bomb = _a[_i];
-            bomb.unsubscribe(this);
-        }
-        var i = arr.indexOf(obj);
-        if (i != -1) {
-            arr.splice(i, 1);
-        }
+    Asteroid.prototype.remove = function () {
+        AudioManager.playRandomExplosionSound();
+        _super.prototype.remove.call(this);
     };
     return Asteroid;
 }(GameObject));
@@ -240,7 +210,7 @@ var Bullet = (function (_super) {
         this.y += this._speedY;
         this.rotation += this._rotationSpeed;
         if (this.outsideWindow()) {
-            this.remove(this, this._bulletList);
+            _super.prototype.remove.call(this);
         }
     };
     Bullet.prototype.outsideWindow = function () {
@@ -261,6 +231,7 @@ var Ship = (function (_super) {
         _this._invincible = false;
         _this._bulletList = new Array();
         _this._shootBehaviour = new SingleShot(_this);
+        console.log(GameManager.getInstance());
         KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(39, function () { _this.rotate(+_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(38, function () { _this.accelerate(); });
@@ -285,10 +256,11 @@ var Ship = (function (_super) {
         configurable: true
     });
     ;
-    Ship.prototype.hit = function (l) {
+    Ship.prototype.hit = function () {
         if (this._lives < 1) {
             AudioManager.playRandomExplosionSound();
-            _super.prototype.remove.call(this, this, l);
+            GameManager.getInstance().removeGameObject(this);
+            _super.prototype.remove.call(this);
         }
         else {
             this.respawn();
@@ -313,7 +285,7 @@ var Ship = (function (_super) {
         this.rotation += angle;
     };
     Ship.prototype.update = function () {
-        this._shootBehaviour.updateCooldown();
+        this._shootBehaviour.update();
         _super.prototype.outsideWindow.call(this);
     };
     return Ship;
@@ -350,35 +322,25 @@ var AudioManager = (function () {
 }());
 var GameManager = (function () {
     function GameManager() {
-        var _this = this;
-        this._ships = new Array();
-        this._asteroids = new Array();
-        this._bullets = new Array();
-        this._powerUps = new Array();
-        this._bombs = new Array();
         this._gameObjects = new Array();
         this.lose = false;
         this.win = false;
         this.pause = false;
-        new Message('author', 'made by arno van doesburg');
-        this._ships.push(new Ship());
-        this._powerUps.push(new MultiShotUpgrade);
-        this._bombs.push(new Bomb());
-        for (var i = 0; i < 20; i++) {
-            var asteroid = new Asteroid(this._bombs, this._asteroids);
-            this._asteroids.push(asteroid);
-        }
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' || event.keyCode === 27) {
-                _this.togglePause();
-            }
-        });
     }
     GameManager.getInstance = function () {
         if (!GameManager._instance) {
             GameManager._instance = new GameManager();
         }
         return GameManager._instance;
+    };
+    GameManager.prototype.addGameObject = function (obj) {
+        GameManager._instance._gameObjects.push(obj);
+    };
+    GameManager.prototype.removeGameObject = function (obj) {
+        var i = this._gameObjects.indexOf(obj);
+        if (i != -1) {
+            this._gameObjects.splice(i, 1);
+        }
     };
     GameManager.prototype.togglePause = function () {
         if (!this.win && !this.lose) {
@@ -387,76 +349,31 @@ var GameManager = (function () {
         }
     };
     GameManager.prototype.loop = function () {
-        var _this = this;
         if (!this.pause) {
-            if (this._asteroids.length > 0) {
-                if (this._ships.length > 0) {
-                    for (var _i = 0, _a = this._ships; _i < _a.length; _i++) {
-                        var ship = _a[_i];
-                        var _loop_1 = function (bomb) {
-                            if (ship.hasCollision(bomb)) {
-                                bomb.activate();
-                                setTimeout(function () {
-                                    bomb.remove(bomb, _this._bombs);
-                                }, 100);
-                            }
-                        };
-                        for (var _b = 0, _c = this._bombs; _b < _c.length; _b++) {
-                            var bomb = _c[_b];
-                            _loop_1(bomb);
-                        }
-                        for (var _d = 0, _e = this._powerUps; _d < _e.length; _d++) {
-                            var powerup = _e[_d];
-                            if (ship.hasCollision(powerup)) {
-                                ship.shootBehaviour = new MultiShot(ship);
-                                powerup.remove(powerup, this._powerUps);
+            for (var _i = 0, _a = this._gameObjects; _i < _a.length; _i++) {
+                var obj = _a[_i];
+                for (var _b = 0, _c = this._gameObjects; _b < _c.length; _b++) {
+                    var otherobj = _c[_b];
+                    if (obj instanceof Ship) {
+                        if (otherobj instanceof Asteroid) {
+                            if (obj.hasCollision(otherobj) && !obj.invincable) {
+                                obj.hit();
                             }
                         }
-                        for (var _f = 0, _g = ship.bulletList; _f < _g.length; _f++) {
-                            var bullet = _g[_f];
-                            bullet.update();
-                            bullet.draw();
-                        }
-                        for (var _h = 0, _j = this._asteroids; _h < _j.length; _h++) {
-                            var asteroid = _j[_h];
-                            for (var _k = 0, _l = ship.bulletList; _k < _l.length; _k++) {
-                                var bullet = _l[_k];
-                                if (bullet.hasCollision(asteroid)) {
-                                    asteroid.remove(asteroid, this._asteroids);
-                                    bullet.remove(bullet, ship.bulletList);
-                                    AudioManager.playRandomExplosionSound();
-                                }
-                            }
-                            if (ship.hasCollision(asteroid)) {
-                                if (!ship.invincable) {
-                                    ship.hit(this._ships);
-                                }
-                            }
-                            asteroid.update();
-                            asteroid.draw();
-                        }
-                        ship.update();
-                        ship.draw();
                     }
-                    KeyboardInput.getInstance().inputLoop();
-                }
-                else {
-                    if (!this.lose) {
-                        this.lose = true;
-                        setTimeout(function () {
-                            AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
-                        }, 300);
+                    if (obj instanceof Bullet) {
+                        if (otherobj instanceof Asteroid) {
+                            if (obj.hasCollision(otherobj)) {
+                                obj.remove();
+                                otherobj.remove();
+                            }
+                        }
                     }
                 }
+                obj.update();
+                obj.draw();
             }
-            else {
-                if (!this.win) {
-                    this.win = true;
-                    setTimeout(function () {
-                        AudioManager.playSound('./../sfx/ui/sfx_win.wav');
-                    }, 300);
-                }
-            }
+            KeyboardInput.getInstance().inputLoop();
         }
     };
     return GameManager;
@@ -501,6 +418,7 @@ var KeyboardInput = (function () {
 }());
 var UIManager = (function () {
     function UIManager() {
+        new Message('author', 'made by arno van doesburg');
     }
     UIManager.prototype.createRestartMessage = function (content) {
         if (!document.querySelector('message')) {
@@ -557,7 +475,7 @@ var MultiShot = (function () {
             this._ship.shootBehaviour = new SingleShot(this._ship);
         }
     };
-    MultiShot.prototype.updateCooldown = function () {
+    MultiShot.prototype.update = function () {
         if (this._cooldown > 0) {
             this._cooldown -= 0.5;
         }
@@ -573,11 +491,11 @@ var SingleShot = (function () {
         if (this._cooldown > 0) {
             return;
         }
-        this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle'));
+        new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle');
         this._cooldown = 11;
         AudioManager.playSound('./../sfx/lasers/sfx_laser1.wav');
     };
-    SingleShot.prototype.updateCooldown = function () {
+    SingleShot.prototype.update = function () {
         if (this._cooldown > 0) {
             this._cooldown -= 0.5;
         }

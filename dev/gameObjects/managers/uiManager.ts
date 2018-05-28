@@ -2,6 +2,10 @@ class UIManager {
 
     private _message : Message;
 
+    constructor() {
+        new Message('author', 'made by arno van doesburg');
+    }
+
     public createRestartMessage(content:string) {
         if (!document.querySelector('message')) {
             this._message = new Message('message', content);

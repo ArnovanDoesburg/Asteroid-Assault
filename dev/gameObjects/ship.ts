@@ -15,6 +15,7 @@ class Ship extends GameObject {
         super(window.innerWidth / 5, window.innerHeight / 2, 0, 'ship');
 
         this._shootBehaviour = new SingleShot(this);
+        console.log(GameManager.getInstance());
 
         KeyboardInput.getInstance().addKeycodeCallback(37, () => {this.rotate(-this._angle);});
         KeyboardInput.getInstance().addKeycodeCallback(39, () => {this.rotate(+this._angle);});
@@ -22,10 +23,11 @@ class Ship extends GameObject {
         KeyboardInput.getInstance().addKeycodeCallback(32, () => {this._shootBehaviour.shoot()});
     }
 
-    public hit(l:Array<Ship>) {
+    public hit() {
         if (this._lives < 1) {
             AudioManager.playRandomExplosionSound();
-            super.remove(this, l);
+            GameManager.getInstance().removeGameObject(this);
+            super.remove();
         } else {
             this.respawn();
             this._lives -= 1;
@@ -52,7 +54,7 @@ class Ship extends GameObject {
     }
 
     public update() {
-        this._shootBehaviour.updateCooldown();
+        this._shootBehaviour.update();
         super.outsideWindow();
     }
 

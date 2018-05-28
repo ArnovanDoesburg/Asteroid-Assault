@@ -8,21 +8,9 @@ class Asteroid extends GameObject implements Observer{
     private _bombs        : Array<Bomb>;
     private _asteroidList : Array<Asteroid>;
 
-    constructor(s:Array<Bomb>, l:Array<Asteroid>) {
+    constructor() {
         super(
-            Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2),
-            Math.floor((Math.random() * window.innerHeight) + 1), 
-            0, 
-            'asteroid');
-
-            if (s.length > 0) {
-                for (let bomb of s) {
-                    bomb.subscribe(this);
-                }
-            }
-           
-            this._bombs = s;
-            this._asteroidList = l;
+            Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid');
     }
 
     public update() : void {
@@ -33,19 +21,11 @@ class Asteroid extends GameObject implements Observer{
     }
 
     public notify() {
-        this.remove(this, this._asteroidList);
+        
     }
 
-    public remove(obj:GameObject, arr:Array<any>) {
-        obj.div.remove();
-
-        for (let bomb of this._bombs) {
-            bomb.unsubscribe(this);
-        }
-
-        let i:number = arr.indexOf(obj);
-        if(i != -1) {
-            arr.splice(i, 1);
-        }
+    public remove() {
+        AudioManager.playRandomExplosionSound();
+        super.remove();
     }
 }
