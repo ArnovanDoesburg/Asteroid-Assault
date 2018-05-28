@@ -312,6 +312,7 @@ var Ship = (function (_super) {
         else {
             this.respawn();
             this._lives -= 1;
+            AudioManager.playSound('./../sfx/sfx_hit.ogg');
         }
     };
     Ship.prototype.respawn = function () {
@@ -373,7 +374,7 @@ var GameManager = (function () {
     GameManager.prototype.togglePause = function () {
         if (!this.win && !this.lose) {
             this.pause = !this.pause;
-            AudioManager.playSound('./../sfx/sfx_twotone.ogg');
+            AudioManager.playSound('./../sfx/sfx_twoTone.ogg');
         }
     };
     GameManager.prototype.loop = function () {
@@ -484,6 +485,11 @@ var KeyboardInput = (function () {
     };
     return KeyboardInput;
 }());
+var State;
+(function (State) {
+    State[State["winning"] = 0] = "winning";
+    State[State["losing"] = 1] = "losing";
+})(State || (State = {}));
 var MultiShotUpgrade = (function (_super) {
     __extends(MultiShotUpgrade, _super);
     function MultiShotUpgrade() {

@@ -4,10 +4,15 @@ class GameManager {
     private _bullets     : Array<Bullet> = new Array();
     private _powerUps    : Array<GameObject> = new Array();
     private _bombs       : Array<Bomb> = new Array();
+    private _state       : State;
 
     public lose        : boolean = false;
     public win         : boolean = false;
     public pause       : boolean = false;
+
+    
+
+    // Singleton van GameManager
 
     constructor() {
 
@@ -33,12 +38,12 @@ class GameManager {
     private togglePause() {
         if (!this.win && !this.lose) {
             this.pause = !this.pause;
-            AudioManager.playSound('./../sfx/sfx_twotone.ogg');
+            AudioManager.playSound('./../sfx/sfx_twoTone.ogg');
         }
     }
 
     public loop() {
-    
+
         if (!this.pause) {
             if (this._asteroids.length > 0) {
                 if (this._ships.length > 0) {
@@ -102,5 +107,7 @@ class GameManager {
                 }
             }
         }
+    // loop achterstevoren door removables
+
     }
 }

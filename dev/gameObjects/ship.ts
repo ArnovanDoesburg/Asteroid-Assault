@@ -28,6 +28,7 @@ class Ship extends GameObject {
         } else {
             this.respawn();
             this._lives -= 1;
+            AudioManager.playSound('./../sfx/sfx_hit.ogg')
         }
     }
 
