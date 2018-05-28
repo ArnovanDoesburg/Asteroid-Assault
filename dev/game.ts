@@ -1,6 +1,7 @@
 class Game {
     private _gameManager    : GameManager;
     private _uiManager      : UIManager;
+    private _restarting     : Boolean;
     
     constructor() {
 
@@ -11,9 +12,12 @@ class Game {
     }
 
     private resetGame() {
-        setTimeout(() => {
-            location.reload();
-        }, 3000);
+        if (!this._restarting) {
+            this._restarting = true;
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        }
     }
 
     private gameLoop() {   

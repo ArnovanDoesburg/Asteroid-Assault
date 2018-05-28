@@ -16,9 +16,12 @@ var Game = (function () {
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
     Game.prototype.resetGame = function () {
-        setTimeout(function () {
-            location.reload();
-        }, 3000);
+        if (!this._restarting) {
+            this._restarting = true;
+            setTimeout(function () {
+                location.reload();
+            }, 3000);
+        }
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
