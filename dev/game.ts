@@ -7,8 +7,8 @@ class Game {
     
     constructor() {
 
-        this._gameManager = GameManager.getInstance();
-        this._uiManager = new UIManager();
+        this._gameManager   = GameManager.getInstance();
+        this._uiManager     = new UIManager();
 
         this.createLevel(this._level);
 
@@ -32,11 +32,10 @@ class Game {
     }
 
     private newLevel() {
-        setTimeout(() => {
-                    
+        setTimeout(() => {      
             GameManager.getInstance().resetLevel();
             this.createLevel(this._level);
-        }, 2000);
+        }, 3000);
     }
 
     private gameLoop() {   

@@ -34,7 +34,7 @@ var Game = (function () {
         setTimeout(function () {
             GameManager.getInstance().resetLevel();
             _this.createLevel(_this._level);
-        }, 2000);
+        }, 3000);
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
