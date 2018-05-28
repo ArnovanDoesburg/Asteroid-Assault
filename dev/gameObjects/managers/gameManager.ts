@@ -27,9 +27,6 @@ class GameManager {
     public resetLevel() {
         this.lose = false;
         this.win = false;
-        // for (let obj of this._gameObjects) {
-        //     obj.remove();
-        // }
 
         for( var i = this._gameObjects.length-1; i >= 0; i-- ) {
             this._gameObjects[i].remove();
@@ -81,6 +78,8 @@ class GameManager {
                     if(obj instanceof Bullet) {
                         if (otherobj instanceof Asteroid) {
                             if (obj.hasCollision(otherobj)) {
+                                AudioManager.playRandomExplosionSound();
+                                otherobj.explode();
                                 obj.remove();
                                 otherobj.remove();
                             }
@@ -92,7 +91,6 @@ class GameManager {
                 obj.draw();
             }
             KeyboardInput.getInstance().inputLoop();
-            console.log(this.win);
         }
     }
 }

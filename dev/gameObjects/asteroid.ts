@@ -1,5 +1,4 @@
 class Asteroid extends GameObject implements Observer{
-    private _speed  : number = 2;
     private _speedX : number = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
     private _speedY : number = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
     
@@ -24,8 +23,7 @@ class Asteroid extends GameObject implements Observer{
         
     }
 
-    public remove() {
-        AudioManager.playRandomExplosionSound();
-        super.remove();
+    public explode() {
+        new AsteroidExplosion(this.x, this.y);
     }
 }

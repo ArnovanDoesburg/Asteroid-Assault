@@ -11,9 +11,10 @@ var __extends = (this && this.__extends) || (function () {
 var Game = (function () {
     function Game() {
         var _this = this;
+        this._level = 1;
         this._gameManager = GameManager.getInstance();
         this._uiManager = new UIManager();
-        this.createLevel(1);
+        this.createLevel(this._level);
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 GameManager.getInstance().togglePause();
@@ -23,8 +24,17 @@ var Game = (function () {
     }
     Game.prototype.createLevel = function (m) {
         new Ship();
-        new Asteroid();
+        for (var i = 0; i < m * 3; i++) {
+            new Asteroid();
+        }
         new MultiShotUpgrade();
+    };
+    Game.prototype.newLevel = function () {
+        var _this = this;
+        setTimeout(function () {
+            GameManager.getInstance().resetLevel();
+            _this.createLevel(_this._level);
+        }, 2000);
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
@@ -32,20 +42,18 @@ var Game = (function () {
         if (this._gameManager.lose) {
             this._uiManager.createRestartMessage('YOU LOSE!');
             if (!this._gameIsOver) {
-                setTimeout(function () {
-                    GameManager.getInstance().resetLevel();
-                    _this.createLevel(1);
-                }, 3000);
+                this._level = 1;
+                AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
+                this.newLevel();
                 this._gameIsOver = true;
             }
         }
         else if (this._gameManager.win) {
             this._uiManager.createRestartMessage('YOU WIN!');
             if (!this._gameIsOver) {
-                setTimeout(function () {
-                    GameManager.getInstance().resetLevel();
-                    _this.createLevel(1);
-                }, 3000);
+                this._level += 1;
+                AudioManager.playSound('./../sfx/ui/sfx_win.wav');
+                this.newLevel();
                 this._gameIsOver = true;
             }
         }
@@ -176,7 +184,6 @@ var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid() {
         var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
-        _this._speed = 2;
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._rotationSpeed = Math.random() * 2;
@@ -190,11 +197,43 @@ var Asteroid = (function (_super) {
     };
     Asteroid.prototype.notify = function () {
     };
-    Asteroid.prototype.remove = function () {
-        AudioManager.playRandomExplosionSound();
-        _super.prototype.remove.call(this);
+    Asteroid.prototype.explode = function () {
+        new AsteroidExplosion(this.x, this.y);
     };
     return Asteroid;
+}(GameObject));
+var AsteroidExplosion = (function () {
+    function AsteroidExplosion(x, y) {
+        for (var i = 0; i < 3; i++) {
+            new AsteroidPart(x, y);
+        }
+    }
+    return AsteroidExplosion;
+}());
+var AsteroidPart = (function (_super) {
+    __extends(AsteroidPart, _super);
+    function AsteroidPart(x, y) {
+        var _this = _super.call(this, x, y, 1, 'asteroidpart') || this;
+        _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
+        _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
+        _this._rotationSpeed = Math.random() * 7;
+        return _this;
+    }
+    AsteroidPart.prototype.outsideWindow = function () {
+        return (this.x > window.innerWidth ||
+            this.x + this.width < 0 ||
+            this.y > window.innerHeight ||
+            this.y + this.height < 0);
+    };
+    AsteroidPart.prototype.update = function () {
+        this.x += this._speedX;
+        this.y += this._speedY;
+        this.rotation += this._rotationSpeed;
+        if (this.outsideWindow()) {
+            _super.prototype.remove.call(this);
+        }
+    };
+    return AsteroidPart;
 }(GameObject));
 var Bomb = (function (_super) {
     __extends(Bomb, _super);
@@ -254,7 +293,7 @@ var Ship = (function (_super) {
         var _this = _super.call(this, window.innerWidth / 5, window.innerHeight / 2, 0, 'ship') || this;
         _this._speed = 7;
         _this._angle = 5;
-        _this._lives = 3;
+        _this._lives = 2;
         _this._invincible = false;
         _this._shootBehaviour = new SingleShot(_this);
         KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
@@ -405,6 +444,8 @@ var GameManager = (function () {
                     if (obj instanceof Bullet) {
                         if (otherobj instanceof Asteroid) {
                             if (obj.hasCollision(otherobj)) {
+                                AudioManager.playRandomExplosionSound();
+                                otherobj.explode();
                                 obj.remove();
                                 otherobj.remove();
                             }
@@ -415,7 +456,6 @@ var GameManager = (function () {
                 obj.draw();
             }
             KeyboardInput.getInstance().inputLoop();
-            console.log(this.win);
         }
     };
     return GameManager;

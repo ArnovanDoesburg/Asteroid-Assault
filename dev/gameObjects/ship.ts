@@ -1,7 +1,7 @@
 class Ship extends GameObject {
     private _speed          : number = 7;
     private _angle          : number = 5;
-    private _lives          : number = 3;
+    private _lives          : number = 2;
     private _invincible     : boolean = false;
 
     private _shootBehaviour : iShootBehaviour;
