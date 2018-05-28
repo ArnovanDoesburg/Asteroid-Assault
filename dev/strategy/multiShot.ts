@@ -13,11 +13,11 @@ class MultiShot implements iShootBehaviour {
             return;
         }
         if (this._ammo > 0) {
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 50, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 50, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 50, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 50, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, 'bulletmulti');
             
             this._ammo -= 1;    
             this._cooldown = 15;

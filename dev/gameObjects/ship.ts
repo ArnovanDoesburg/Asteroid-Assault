@@ -4,18 +4,15 @@ class Ship extends GameObject {
     private _lives          : number = 3;
     private _invincible     : boolean = false;
 
-    private _bulletList     : Array<Bullet> = new Array();
     private _shootBehaviour : iShootBehaviour;
 
     public set shootBehaviour(value : iShootBehaviour) {this._shootBehaviour = value};
-    public get bulletList() : Array<Bullet> {return this._bulletList};
     public get invincable() : boolean {return this._invincible};
 
     constructor() {
         super(window.innerWidth / 5, window.innerHeight / 2, 0, 'ship');
 
         this._shootBehaviour = new SingleShot(this);
-        console.log(GameManager.getInstance());
 
         KeyboardInput.getInstance().addKeycodeCallback(37, () => {this.rotate(-this._angle);});
         KeyboardInput.getInstance().addKeycodeCallback(39, () => {this.rotate(+this._angle);});

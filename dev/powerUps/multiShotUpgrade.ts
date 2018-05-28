@@ -1,11 +1,9 @@
-class MultiShotUpgrade extends GameObject implements iUpgrade {
+///<reference path="./upgrade" />
+
+class MultiShotUpgrade extends Upgrade {
 
     constructor() {
-        super(
-            Math.floor((Math.random() * window.innerWidth) + 1),
-            Math.floor((Math.random() * window.innerHeight) + 1), 
-            0, 
-            'weaponupgrade');
+        super('weaponupgrade');
     }
 
     public activate(s:Ship) : iShootBehaviour {

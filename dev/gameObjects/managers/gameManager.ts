@@ -24,7 +24,19 @@ class GameManager {
         }
     }
 
-    private togglePause() {
+    public resetLevel() {
+        this.lose = false;
+        this.win = false;
+        // for (let obj of this._gameObjects) {
+        //     obj.remove();
+        // }
+
+        for( var i = this._gameObjects.length-1; i >= 0; i-- ) {
+            this._gameObjects[i].remove();
+            }
+    }
+
+    public togglePause() {
         if (!this.win && !this.lose) {
 
             AudioManager.playPauseSound(this.pause);
@@ -33,9 +45,21 @@ class GameManager {
         }
     }
 
+    private checkGameStatus() {
+
+            if (!this._gameObjects.some((ship) => ship instanceof Ship)) {
+                this.lose = true;
+            } else if (!this._gameObjects.some((asteroid) => asteroid instanceof Asteroid)) {
+                this.win = true;
+            }
+    }
+
     public loop() {
 
         if (!this.pause) {
+
+            this.checkGameStatus();
+
             for (let obj of this._gameObjects) {
                 for (let otherobj of this._gameObjects){
 
@@ -44,6 +68,11 @@ class GameManager {
                         if (otherobj instanceof Asteroid) {
                             if (obj.hasCollision(otherobj) && !obj.invincable) {
                                 obj.hit();
+                            }
+                        } else if (otherobj instanceof Upgrade) {
+                            if (obj.hasCollision(otherobj)) {
+                                obj.shootBehaviour = otherobj.activate(obj);
+                                otherobj.remove();
                             }
                         }
                     }
@@ -63,6 +92,7 @@ class GameManager {
                 obj.draw();
             }
             KeyboardInput.getInstance().inputLoop();
+            console.log(this.win);
         }
     }
 }

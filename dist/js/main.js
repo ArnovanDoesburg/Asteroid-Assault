@@ -13,21 +13,49 @@ var Game = (function () {
         var _this = this;
         this._gameManager = GameManager.getInstance();
         this._uiManager = new UIManager();
-        new Ship();
-        new Asteroid();
+        this.createLevel(1);
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' || event.keyCode === 27) {
+                GameManager.getInstance().togglePause();
+            }
+        });
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
-    Game.prototype.resetGame = function () {
-        if (!this._restarting) {
-            this._restarting = true;
-            setTimeout(function () {
-                location.reload();
-            }, 3000);
-        }
+    Game.prototype.createLevel = function (m) {
+        new Ship();
+        new Asteroid();
+        new MultiShotUpgrade();
     };
     Game.prototype.gameLoop = function () {
         var _this = this;
         this._gameManager.loop();
+        if (this._gameManager.lose) {
+            this._uiManager.createRestartMessage('YOU LOSE!');
+            if (!this._gameIsOver) {
+                setTimeout(function () {
+                    GameManager.getInstance().resetLevel();
+                    _this.createLevel(1);
+                }, 3000);
+                this._gameIsOver = true;
+            }
+        }
+        else if (this._gameManager.win) {
+            this._uiManager.createRestartMessage('YOU WIN!');
+            if (!this._gameIsOver) {
+                setTimeout(function () {
+                    GameManager.getInstance().resetLevel();
+                    _this.createLevel(1);
+                }, 3000);
+                this._gameIsOver = true;
+            }
+        }
+        else if (this._gameManager.pause) {
+            this._uiManager.createPauseMessage('PRESS "ESCAPE" TO UNPAUSE');
+        }
+        else {
+            this._uiManager.clearMessages();
+            this._gameIsOver = false;
+        }
         requestAnimationFrame(function () { return _this.gameLoop(); });
     };
     return Game;
@@ -123,8 +151,8 @@ var GameObject = (function () {
         }
     };
     GameObject.prototype.remove = function () {
-        this.div.remove();
         GameManager.getInstance().removeGameObject(this);
+        this.div.remove();
     };
     return GameObject;
 }());
@@ -194,13 +222,12 @@ var Bomb = (function (_super) {
 }(GameObject));
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
-    function Bullet(x, y, rotation, rotationspeed, bulletList, tag) {
+    function Bullet(x, y, rotation, rotationspeed, tag) {
         var _this = _super.call(this, x, y, rotation, tag) || this;
         _this._speed = 10;
         _this._speedX = 0;
         _this._speedY = 0;
         _this._rotationSpeed = rotationspeed;
-        _this._bulletList = bulletList;
         _this._speedX = _this._speed * Math.cos(rotation / 180 * Math.PI);
         _this._speedY = _this._speed * Math.sin(rotation / 180 * Math.PI);
         return _this;
@@ -229,9 +256,7 @@ var Ship = (function (_super) {
         _this._angle = 5;
         _this._lives = 3;
         _this._invincible = false;
-        _this._bulletList = new Array();
         _this._shootBehaviour = new SingleShot(_this);
-        console.log(GameManager.getInstance());
         KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(39, function () { _this.rotate(+_this._angle); });
         KeyboardInput.getInstance().addKeycodeCallback(38, function () { _this.accelerate(); });
@@ -240,12 +265,6 @@ var Ship = (function (_super) {
     }
     Object.defineProperty(Ship.prototype, "shootBehaviour", {
         set: function (value) { this._shootBehaviour = value; },
-        enumerable: true,
-        configurable: true
-    });
-    ;
-    Object.defineProperty(Ship.prototype, "bulletList", {
-        get: function () { return this._bulletList; },
         enumerable: true,
         configurable: true
     });
@@ -342,14 +361,30 @@ var GameManager = (function () {
             this._gameObjects.splice(i, 1);
         }
     };
+    GameManager.prototype.resetLevel = function () {
+        this.lose = false;
+        this.win = false;
+        for (var i = this._gameObjects.length - 1; i >= 0; i--) {
+            this._gameObjects[i].remove();
+        }
+    };
     GameManager.prototype.togglePause = function () {
         if (!this.win && !this.lose) {
             AudioManager.playPauseSound(this.pause);
             this.pause = !this.pause;
         }
     };
+    GameManager.prototype.checkGameStatus = function () {
+        if (!this._gameObjects.some(function (ship) { return ship instanceof Ship; })) {
+            this.lose = true;
+        }
+        else if (!this._gameObjects.some(function (asteroid) { return asteroid instanceof Asteroid; })) {
+            this.win = true;
+        }
+    };
     GameManager.prototype.loop = function () {
         if (!this.pause) {
+            this.checkGameStatus();
             for (var _i = 0, _a = this._gameObjects; _i < _a.length; _i++) {
                 var obj = _a[_i];
                 for (var _b = 0, _c = this._gameObjects; _b < _c.length; _b++) {
@@ -358,6 +393,12 @@ var GameManager = (function () {
                         if (otherobj instanceof Asteroid) {
                             if (obj.hasCollision(otherobj) && !obj.invincable) {
                                 obj.hit();
+                            }
+                        }
+                        else if (otherobj instanceof Upgrade) {
+                            if (obj.hasCollision(otherobj)) {
+                                obj.shootBehaviour = otherobj.activate(obj);
+                                otherobj.remove();
                             }
                         }
                     }
@@ -374,6 +415,7 @@ var GameManager = (function () {
                 obj.draw();
             }
             KeyboardInput.getInstance().inputLoop();
+            console.log(this.win);
         }
     };
     return GameManager;
@@ -440,16 +482,23 @@ var UIManager = (function () {
     };
     return UIManager;
 }());
+var Upgrade = (function (_super) {
+    __extends(Upgrade, _super);
+    function Upgrade(tag) {
+        return _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, tag) || this;
+    }
+    return Upgrade;
+}(GameObject));
 var MultiShotUpgrade = (function (_super) {
     __extends(MultiShotUpgrade, _super);
     function MultiShotUpgrade() {
-        return _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'weaponupgrade') || this;
+        return _super.call(this, 'weaponupgrade') || this;
     }
     MultiShotUpgrade.prototype.activate = function (s) {
         return new MultiShot(s);
     };
     return MultiShotUpgrade;
-}(GameObject));
+}(Upgrade));
 var MultiShot = (function () {
     function MultiShot(s) {
         this._cooldown = 0;
@@ -462,11 +511,11 @@ var MultiShot = (function () {
             return;
         }
         if (this._ammo > 0) {
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 50, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 50, 0, this._ship.bulletList, 'bulletmulti'));
-            this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 25, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation + 50, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 50, 0, 'bulletmulti');
+            new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, 'bulletmulti');
             this._ammo -= 1;
             this._cooldown = 15;
             AudioManager.playSound('./../sfx/lasers/sfx_laser2.wav');
@@ -491,7 +540,7 @@ var SingleShot = (function () {
         if (this._cooldown > 0) {
             return;
         }
-        new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle');
+        new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, 'bulletsingle');
         this._cooldown = 11;
         AudioManager.playSound('./../sfx/lasers/sfx_laser1.wav');
     };

@@ -10,7 +10,7 @@ class SingleShot implements iShootBehaviour {
         if (this._cooldown > 0) {
             return;
         }
-        new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle');
+        new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, 'bulletsingle');
         
         this._cooldown = 11;
 

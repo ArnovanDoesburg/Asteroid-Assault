@@ -73,7 +73,7 @@ class GameObject {
     }
 
     public remove() {
-        this.div.remove();
         GameManager.getInstance().removeGameObject(this);
+        this.div.remove();
     }
 }
