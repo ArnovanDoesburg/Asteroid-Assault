@@ -5,7 +5,7 @@ class Game {
     
     constructor() {
 
-        this._gameManager = new GameManager();
+        this._gameManager = GameManager.getInstance();
         this._uiManager = new UIManager();
 
         requestAnimationFrame(() => this.gameLoop());

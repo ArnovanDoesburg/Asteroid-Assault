@@ -22,7 +22,7 @@ class MultiShot implements iShootBehaviour {
             this._ammo -= 1;    
             this._cooldown = 15;
 
-            AudioManager.playSound('./../sfx/sfx_laser2.ogg');
+            AudioManager.playSound('./../sfx/lasers/sfx_laser2.wav');
         } else {
             this._ship.shootBehaviour = new SingleShot(this._ship);
         }

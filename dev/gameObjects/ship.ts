@@ -22,13 +22,14 @@ class Ship extends GameObject {
         KeyboardInput.getInstance().addKeycodeCallback(32, () => {this._shootBehaviour.shoot()});
     }
 
-    public die(l:Array<Ship>) {
+    public hit(l:Array<Ship>) {
         if (this._lives < 1) {
+            AudioManager.playRandomExplosionSound();
             super.remove(this, l);
         } else {
             this.respawn();
             this._lives -= 1;
-            AudioManager.playSound('./../sfx/sfx_hit.ogg')
+            AudioManager.playRandomPlayerHitSound();
         }
     }
 

@@ -55,3 +55,4 @@ Coming soon™
 
 * **Arno van Doesburg** - *development*
 * **Kenney.nl** - *graphics*
+* **SubspaceAudio** - *sfx*

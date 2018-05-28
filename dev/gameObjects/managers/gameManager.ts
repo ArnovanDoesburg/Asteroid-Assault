@@ -4,17 +4,16 @@ class GameManager {
     private _bullets     : Array<Bullet> = new Array();
     private _powerUps    : Array<GameObject> = new Array();
     private _bombs       : Array<Bomb> = new Array();
-    private _state       : State;
+
+    private _gameObjects : Array<GameObject> = new Array();
 
     public lose        : boolean = false;
     public win         : boolean = false;
     public pause       : boolean = false;
 
-    
+    private static _instance    : GameManager;
 
-    // Singleton van GameManager
-
-    constructor() {
+    private constructor() {
 
         new Message('author', 'made by arno van doesburg');
 
@@ -35,10 +34,19 @@ class GameManager {
         });
     }
 
+    public static getInstance() {
+        if (! GameManager._instance) {
+            GameManager._instance = new GameManager()
+            }
+        return GameManager._instance
+    }
+
     private togglePause() {
         if (!this.win && !this.lose) {
+
+            AudioManager.playPauseSound(this.pause);
+
             this.pause = !this.pause;
-            AudioManager.playSound('./../sfx/sfx_twoTone.ogg');
         }
     }
 
@@ -76,12 +84,13 @@ class GameManager {
                                     if (bullet.hasCollision(asteroid)) {
                                         asteroid.remove(asteroid, this._asteroids);
                                         bullet.remove(bullet, ship.bulletList);
+                                        AudioManager.playRandomExplosionSound();
                                     }
                                 }
 
                             if (ship.hasCollision(asteroid)) {
                                 if (!ship.invincable) {
-                                    ship.die(this._ships);
+                                    ship.hit(this._ships);
                                 }
                             }
 
@@ -97,13 +106,17 @@ class GameManager {
                     if (!this.lose){
                         this.lose = true;
                         
-                        AudioManager.playSound('./../sfx/sfx_lose.ogg');
+                        setTimeout(() => {
+                            AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
+                        }, 300);
                     }
                 }
             } else {
                 if (!this.win){
                     this.win = true;
-                    AudioManager.playSound('./../sfx/sfx_win.ogg');
+                    setTimeout(() => {
+                        AudioManager.playSound('./../sfx/ui/sfx_win.wav');
+                    }, 300);
                 }
             }
         }

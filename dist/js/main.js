@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 var Game = (function () {
     function Game() {
         var _this = this;
-        this._gameManager = new GameManager();
+        this._gameManager = GameManager.getInstance();
         this._uiManager = new UIManager();
         requestAnimationFrame(function () { return _this.gameLoop(); });
     }
@@ -145,29 +145,6 @@ var GameObject = (function () {
 window.addEventListener("load", function () {
     var game = new Game();
 });
-var UIManager = (function () {
-    function UIManager() {
-    }
-    UIManager.prototype.createRestartMessage = function (content) {
-        if (!document.querySelector('message')) {
-            this._message = new Message('message', content);
-            document.body.appendChild(this._message.div);
-        }
-    };
-    UIManager.prototype.createPauseMessage = function (content) {
-        if (!document.querySelector('message')) {
-            this._message = new Message('message', content);
-            document.body.appendChild(this._message.div);
-        }
-    };
-    UIManager.prototype.clearMessages = function () {
-        var message = document.querySelector('message');
-        if (message) {
-            message.remove();
-        }
-    };
-    return UIManager;
-}());
 var Message = (function () {
     function Message(tag, content) {
         this._div = document.createElement(tag);
@@ -308,14 +285,15 @@ var Ship = (function (_super) {
         configurable: true
     });
     ;
-    Ship.prototype.die = function (l) {
+    Ship.prototype.hit = function (l) {
         if (this._lives < 1) {
+            AudioManager.playRandomExplosionSound();
             _super.prototype.remove.call(this, this, l);
         }
         else {
             this.respawn();
             this._lives -= 1;
-            AudioManager.playSound('./../sfx/sfx_hit.ogg');
+            AudioManager.playRandomPlayerHitSound();
         }
     };
     Ship.prototype.respawn = function () {
@@ -345,8 +323,29 @@ var AudioManager = (function () {
     }
     AudioManager.playSound = function (s) {
         var audio = new Audio(s);
+        audio.volume = 0.5;
         audio.play();
     };
+    AudioManager.playRandomExplosionSound = function () {
+        var rand = Math.floor(Math.random() * this.explosionSounds.length);
+        this.playSound(this.explosionFilePath + this.explosionSounds[rand]);
+    };
+    AudioManager.playRandomPlayerHitSound = function () {
+        var rand = Math.floor(Math.random() * this.playerHitSounds.length);
+        this.playSound(this.playerFilePath + this.playerHitSounds[rand]);
+    };
+    AudioManager.playPauseSound = function (b) {
+        if (b) {
+            this.playSound('./../sfx/ui/sfx_pause_in.wav');
+        }
+        else {
+            this.playSound('./../sfx/ui/sfx_pause_out.wav');
+        }
+    };
+    AudioManager.explosionFilePath = './../sfx/explosions/';
+    AudioManager.playerFilePath = './../sfx/player/';
+    AudioManager.explosionSounds = ['sfx_explosion1.wav', 'sfx_explosion2.wav', 'sfx_explosion3.wav', 'sfx_explosion4.wav'];
+    AudioManager.playerHitSounds = ['sfx_player_hit1.wav', 'sfx_player_hit2.wav', 'sfx_player_hit3.wav', 'sfx_player_hit4.wav'];
     return AudioManager;
 }());
 var GameManager = (function () {
@@ -357,6 +356,7 @@ var GameManager = (function () {
         this._bullets = new Array();
         this._powerUps = new Array();
         this._bombs = new Array();
+        this._gameObjects = new Array();
         this.lose = false;
         this.win = false;
         this.pause = false;
@@ -374,10 +374,16 @@ var GameManager = (function () {
             }
         });
     }
+    GameManager.getInstance = function () {
+        if (!GameManager._instance) {
+            GameManager._instance = new GameManager();
+        }
+        return GameManager._instance;
+    };
     GameManager.prototype.togglePause = function () {
         if (!this.win && !this.lose) {
+            AudioManager.playPauseSound(this.pause);
             this.pause = !this.pause;
-            AudioManager.playSound('./../sfx/sfx_twoTone.ogg');
         }
     };
     GameManager.prototype.loop = function () {
@@ -418,11 +424,12 @@ var GameManager = (function () {
                                 if (bullet.hasCollision(asteroid)) {
                                     asteroid.remove(asteroid, this._asteroids);
                                     bullet.remove(bullet, ship.bulletList);
+                                    AudioManager.playRandomExplosionSound();
                                 }
                             }
                             if (ship.hasCollision(asteroid)) {
                                 if (!ship.invincable) {
-                                    ship.die(this._ships);
+                                    ship.hit(this._ships);
                                 }
                             }
                             asteroid.update();
@@ -436,14 +443,18 @@ var GameManager = (function () {
                 else {
                     if (!this.lose) {
                         this.lose = true;
-                        AudioManager.playSound('./../sfx/sfx_lose.ogg');
+                        setTimeout(function () {
+                            AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
+                        }, 300);
                     }
                 }
             }
             else {
                 if (!this.win) {
                     this.win = true;
-                    AudioManager.playSound('./../sfx/sfx_win.ogg');
+                    setTimeout(function () {
+                        AudioManager.playSound('./../sfx/ui/sfx_win.wav');
+                    }, 300);
                 }
             }
         }
@@ -488,11 +499,29 @@ var KeyboardInput = (function () {
     };
     return KeyboardInput;
 }());
-var State;
-(function (State) {
-    State[State["winning"] = 0] = "winning";
-    State[State["losing"] = 1] = "losing";
-})(State || (State = {}));
+var UIManager = (function () {
+    function UIManager() {
+    }
+    UIManager.prototype.createRestartMessage = function (content) {
+        if (!document.querySelector('message')) {
+            this._message = new Message('message', content);
+            document.body.appendChild(this._message.div);
+        }
+    };
+    UIManager.prototype.createPauseMessage = function (content) {
+        if (!document.querySelector('message')) {
+            this._message = new Message('message', content);
+            document.body.appendChild(this._message.div);
+        }
+    };
+    UIManager.prototype.clearMessages = function () {
+        var message = document.querySelector('message');
+        if (message) {
+            message.remove();
+        }
+    };
+    return UIManager;
+}());
 var MultiShotUpgrade = (function (_super) {
     __extends(MultiShotUpgrade, _super);
     function MultiShotUpgrade() {
@@ -522,7 +551,7 @@ var MultiShot = (function () {
             this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation - 25, 0, this._ship.bulletList, 'bulletmulti'));
             this._ammo -= 1;
             this._cooldown = 15;
-            AudioManager.playSound('./../sfx/sfx_laser2.ogg');
+            AudioManager.playSound('./../sfx/lasers/sfx_laser2.wav');
         }
         else {
             this._ship.shootBehaviour = new SingleShot(this._ship);
@@ -546,7 +575,7 @@ var SingleShot = (function () {
         }
         this._ship.bulletList.push(new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, this._ship.bulletList, 'bulletsingle'));
         this._cooldown = 11;
-        AudioManager.playSound('./../sfx/sfx_laser1.ogg');
+        AudioManager.playSound('./../sfx/lasers/sfx_laser1.wav');
     };
     SingleShot.prototype.updateCooldown = function () {
         if (this._cooldown > 0) {
