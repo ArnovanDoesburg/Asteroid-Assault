@@ -74,6 +74,16 @@ author {
     z-index: 1;
 }
 
+.invincible {
+    animation: blinker 0.4s linear infinite;
+}
+
+@keyframes blinker {
+    30% {
+      opacity: 0;
+    }
+  }
+
 /* Browser Sync script tag disabler */
 #__bs_script__ {
     display: none;

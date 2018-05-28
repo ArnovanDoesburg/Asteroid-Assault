@@ -75,7 +75,9 @@ class GameManager {
                                 }
 
                             if (ship.hasCollision(asteroid)) {
-                                ship.remove(ship, this._ships);
+                                if (!ship.invincable) {
+                                    ship.die(this._ships);
+                                }
                             }
 
                             asteroid.update();

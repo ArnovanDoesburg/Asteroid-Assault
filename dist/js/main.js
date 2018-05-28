@@ -279,6 +279,8 @@ var Ship = (function (_super) {
         var _this = _super.call(this, window.innerWidth / 5, window.innerHeight / 2, 0, 'ship') || this;
         _this._speed = 7;
         _this._angle = 5;
+        _this._lives = 3;
+        _this._invincible = false;
         _this._bulletList = new Array();
         _this._shootBehaviour = new SingleShot(_this);
         KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
@@ -299,6 +301,30 @@ var Ship = (function (_super) {
         configurable: true
     });
     ;
+    Object.defineProperty(Ship.prototype, "invincable", {
+        get: function () { return this._invincible; },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    Ship.prototype.die = function (l) {
+        if (this._lives < 1) {
+            _super.prototype.remove.call(this, this, l);
+        }
+        else {
+            this.respawn();
+            this._lives -= 1;
+        }
+    };
+    Ship.prototype.respawn = function () {
+        var _this = this;
+        this._invincible = true;
+        this.div.classList.add('invincible');
+        setTimeout(function () {
+            _this._invincible = false;
+            _this.div.classList.remove('invincible');
+        }, 2000);
+    };
     Ship.prototype.accelerate = function () {
         this.x += this._speed * Math.cos(this.rotation * Math.PI / 180);
         this.y += this._speed * Math.sin(this.rotation * Math.PI / 180);
@@ -393,7 +419,9 @@ var GameManager = (function () {
                                 }
                             }
                             if (ship.hasCollision(asteroid)) {
-                                ship.remove(ship, this._ships);
+                                if (!ship.invincable) {
+                                    ship.die(this._ships);
+                                }
                             }
                             asteroid.update();
                             asteroid.draw();
