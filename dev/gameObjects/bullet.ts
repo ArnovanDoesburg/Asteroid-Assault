@@ -25,7 +25,7 @@ class Bullet extends GameObject {
         }
     }
 
-    private outsideWindow() : boolean {
+    public outsideWindow() : boolean {
         return(
             this.x > window.innerWidth ||
             this.x + this.width < 0 ||

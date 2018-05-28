@@ -12,8 +12,8 @@ class GameObject {
     public get y() : number             {return this._y};
     public set y(value : number)        {this._y = value};
 
-    public get rotation() : number             {return this._rotation};
-    public set rotation(value : number)        {this._rotation = value};
+    public get rotation() : number      {return this._rotation};
+    public set rotation(value : number) {this._rotation = value};
 
     public get width() : number         {return this._width};
     public set width(value : number)    {this._width = value};
@@ -51,6 +51,24 @@ class GameObject {
                 this.x + this.width > obj.x &&
                 this.y < obj.y + obj.height &&
                 this.y + this.height > obj.y);
+    }
+
+    public outsideWindow() {
+        if (this.x + this.div.clientWidth < 0) {
+            this.x = window.innerWidth;
+        }
+
+        if (this.x > window.innerWidth) {
+            this.x = 0 - this.div.clientWidth;
+        }
+        
+        if (this.y + this.div.clientHeight < 0) {
+            this.y = window.innerHeight;
+        }
+
+        if (this.y > window.innerHeight) {
+            this.y = 0 - this.div.clientHeight;
+        }
     }
 
     public remove(obj:GameObject, arr:Array<any>) {

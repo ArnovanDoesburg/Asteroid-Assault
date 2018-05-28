@@ -30,27 +30,9 @@ class Ship extends GameObject {
         this.rotation += angle;
     }
 
-    private outsideWindow() {
-        if (this.x + this.div.clientWidth < 0) {
-            this.x = window.innerWidth;
-        }
-
-        if (this.x > window.innerWidth) {
-            this.x = 0 - this.div.clientWidth;
-        }
-        
-        if (this.y + this.div.clientHeight < 0) {
-            this.y = window.innerHeight;
-        }
-
-        if (this.y > window.innerHeight) {
-            this.y = 0 - this.div.clientHeight;
-        }
-    }
-
     public update() {
         this._shootBehaviour.updateCooldown();
-        this.outsideWindow();
+        super.outsideWindow();
     }
 
 }

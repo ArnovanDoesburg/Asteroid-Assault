@@ -116,6 +116,20 @@ var GameObject = (function () {
             this.y < obj.y + obj.height &&
             this.y + this.height > obj.y);
     };
+    GameObject.prototype.outsideWindow = function () {
+        if (this.x + this.div.clientWidth < 0) {
+            this.x = window.innerWidth;
+        }
+        if (this.x > window.innerWidth) {
+            this.x = 0 - this.div.clientWidth;
+        }
+        if (this.y + this.div.clientHeight < 0) {
+            this.y = window.innerHeight;
+        }
+        if (this.y > window.innerHeight) {
+            this.y = 0 - this.div.clientHeight;
+        }
+    };
     GameObject.prototype.remove = function (obj, arr) {
         obj.div.remove();
         var i = arr.indexOf(obj);
@@ -186,21 +200,7 @@ var Asteroid = (function (_super) {
         this.x += this._speedX;
         this.y += this._speedY;
         this.rotation += this._rotationSpeed;
-        this.outsideWindow();
-    };
-    Asteroid.prototype.outsideWindow = function () {
-        if (this.x + this.div.clientWidth < 0) {
-            this.x = window.innerWidth;
-        }
-        if (this.x > window.innerWidth) {
-            this.x = 0 - this.div.clientWidth;
-        }
-        if (this.y + this.div.clientHeight < 0) {
-            this.y = window.innerHeight;
-        }
-        if (this.y > window.innerHeight) {
-            this.y = 0 - this.div.clientHeight;
-        }
+        _super.prototype.outsideWindow.call(this);
     };
     Asteroid.prototype.notify = function () {
         this.remove(this, this._asteroidList);
@@ -306,23 +306,9 @@ var Ship = (function (_super) {
     Ship.prototype.rotate = function (angle) {
         this.rotation += angle;
     };
-    Ship.prototype.outsideWindow = function () {
-        if (this.x + this.div.clientWidth < 0) {
-            this.x = window.innerWidth;
-        }
-        if (this.x > window.innerWidth) {
-            this.x = 0 - this.div.clientWidth;
-        }
-        if (this.y + this.div.clientHeight < 0) {
-            this.y = window.innerHeight;
-        }
-        if (this.y > window.innerHeight) {
-            this.y = 0 - this.div.clientHeight;
-        }
-    };
     Ship.prototype.update = function () {
         this._shootBehaviour.updateCooldown();
-        this.outsideWindow();
+        _super.prototype.outsideWindow.call(this);
     };
     return Ship;
 }(GameObject));
