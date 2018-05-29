@@ -22,8 +22,9 @@ class Bomb extends GameObject implements Subject {
     notifyObs() {
         AudioManager.playSound('./../sfx/sfx_bomb.wav');
         
+        
         for( var i = this.observers.length-1; i >= 0; i-- ) {
             this.observers[i].notify();
-            }
+        }
     }
 }

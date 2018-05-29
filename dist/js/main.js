@@ -203,7 +203,7 @@ var AuthorMessage = (function (_super) {
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid(s) {
-        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
+        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid' + Math.floor(Math.random() * 4 + 1)) || this;
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._rotationSpeed = Math.random() * 2;
@@ -237,7 +237,7 @@ var AsteroidExplosion = (function () {
 var AsteroidPart = (function (_super) {
     __extends(AsteroidPart, _super);
     function AsteroidPart(x, y) {
-        var _this = _super.call(this, x, y, 1, 'asteroidpart') || this;
+        var _this = _super.call(this, x, y, 1, 'asteroidpart' + Math.floor(Math.random() * 2 + 1)) || this;
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._rotationSpeed = Math.random() * 7;

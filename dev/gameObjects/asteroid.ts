@@ -9,7 +9,7 @@ class Asteroid extends GameObject implements Observer{
     private _asteroidList : Array<Asteroid>;
 
     constructor(s:Subject) {
-        super(Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid');
+        super(Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid'+Math.floor(Math.random() * 4 + 1));
         this._subject = s;
     }
 

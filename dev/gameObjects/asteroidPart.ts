@@ -5,7 +5,7 @@ class AsteroidPart extends GameObject {
     private _rotationSpeed : number = Math.random()*7;
 
     constructor(x:number, y:number) {
-        super(x, y, 1, 'asteroidpart');
+        super(x, y, 1, 'asteroidpart'+Math.floor(Math.random() * 2 + 1));
     }
 
     public outsideWindow() : boolean {

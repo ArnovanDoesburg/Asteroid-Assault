@@ -18,16 +18,41 @@ body * {
     background-repeat: no-repeat;
 }
 
-asteroid {
+asteroid1 {
     background-image: url(./../img/meteor/big1.png);
     width: 89px;
     height: 82px;
 }
 
-asteroidpart {
-    background-image: url(./../img/meteor/tiny1.png);
+asteroid2 {
+    background-image: url(./../img/meteor/big2.png);
+    width: 101px;
+    height: 84px;
+}
+
+asteroid3 {
+    background-image: url(./../img/meteor/big3.png);
+    width: 98px;
+    height: 96px;
+}
+
+asteroid4 {
+    background-image: url(./../img/meteor/big4.png);
+    width: 120px;
+    height: 98px;
+}
+
+asteroidpart1 {
+    background-image: url(./../img/meteor/small1.png);
     width: 28px;
     height: 28px;
+    z-index: -1;
+}
+
+asteroidpart2 {
+    background-image: url(./../img/meteor/small2.png);
+    width: 43px;
+    height: 43px;
     z-index: -1;
 }
 
