@@ -1,6 +1,21 @@
 #  ![](https://raw.githubusercontent.com/ArnovanDoesburg/CMTPRG01-8/feature/Collision/dist/img/meteor/tiny2.png) Asteroid Assault ![](https://raw.githubusercontent.com/ArnovanDoesburg/CMTPRG01-8/feature/Collision/dist/img/meteor/tiny1.png)
 
+Destroy all the big asteroids without getting hit more than twice! Each level spawns more asteroids than the last one, how long will you survive?
+
 This project was made on behalf of the Rotterdam University of Applied Sciences.
+
+Play Asteroid Assault on http://arnovandoesburg.nl/
+
+##Powerups
+* multi-shot - allows the player to shoot in a wide angle three times.
+* bomb - makes all the asteroids explode.
+
+## Controls
+* Movement : arrow keys
+* Fire : space bar
+* Pause : escape
+
+# Development
 
 ## Getting Started 
 
@@ -32,12 +47,6 @@ browser-sync start --server --files "js/main.js"
 
 Make sure to execute this command in the /dist directory and not the root folder.
 
-## Controls
-
-* Movement : arrow keys
-* Fire : space bar
-* Pause : P
-
 ## Pull request
 
 With this pull request I added a new feature branch to a tower defense game which made it possible to restock the towers with bullets by purchasing ammo with gold.
@@ -48,6 +57,10 @@ I also added the ability to generate more gold by killing zombies.
 
 
 ## Peer review
+
+Coming soon™
+
+## UML diagram
 
 Coming soon™
 
