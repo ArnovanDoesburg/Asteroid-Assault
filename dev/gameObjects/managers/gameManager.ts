@@ -71,6 +71,11 @@ class GameManager {
                                 obj.shootBehaviour = otherobj.activate(obj);
                                 otherobj.remove();
                             }
+                        } else if (otherobj instanceof Bomb) {
+                            if (obj.hasCollision(otherobj)) {
+                                otherobj.notifyObs();
+                                otherobj.remove();
+                            }
                         }
                     }
 
@@ -81,7 +86,6 @@ class GameManager {
                                 AudioManager.playRandomExplosionSound();
                                 otherobj.explode();
                                 obj.remove();
-                                otherobj.remove();
                             }
                         }
                     }

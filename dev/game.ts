@@ -2,6 +2,7 @@ class Game {
     private _gameManager    : GameManager;
     private _uiManager      : UIManager;
     private _gameIsOver     : boolean;
+    private _bomb           : Bomb;
     
     constructor() {
 
@@ -27,10 +28,12 @@ class Game {
     private createLevel (m:number) {
         new Ship();
         new MultiShotUpgrade();
+        this._bomb = new Bomb();
 
         // LEVEL BASED ENEMY AMOUNT
         for (let i = 0; i < m * 3; i++) {
-            new Asteroid();
+            this._bomb.subscribe(new Asteroid(this._bomb));
+
         };
     };
 

@@ -30,8 +30,9 @@ var Game = (function () {
     Game.prototype.createLevel = function (m) {
         new Ship();
         new MultiShotUpgrade();
+        this._bomb = new Bomb();
         for (var i = 0; i < m * 3; i++) {
-            new Asteroid();
+            this._bomb.subscribe(new Asteroid(this._bomb));
         }
         ;
     };
@@ -197,11 +198,12 @@ var AuthorMessage = (function (_super) {
 }(Message));
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
-    function Asteroid() {
+    function Asteroid(s) {
         var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid') || this;
         _this._speedX = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._speedY = Math.random() < 0.5 ? Math.random() - 1 * 1.5 : Math.random() * 1.5;
         _this._rotationSpeed = Math.random() * 2;
+        _this._subject = s;
         return _this;
     }
     Asteroid.prototype.update = function () {
@@ -214,7 +216,9 @@ var Asteroid = (function (_super) {
         this.explode();
     };
     Asteroid.prototype.explode = function () {
+        this._subject.unsubscribe(this);
         new AsteroidExplosion(this.x, this.y);
+        this.remove();
     };
     return Asteroid;
 }(GameObject));
@@ -250,6 +254,29 @@ var AsteroidPart = (function (_super) {
         }
     };
     return AsteroidPart;
+}(GameObject));
+var Bomb = (function (_super) {
+    __extends(Bomb, _super);
+    function Bomb() {
+        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'bomb') || this;
+        _this.observers = new Array();
+        return _this;
+    }
+    Bomb.prototype.subscribe = function (o) {
+        this.observers.push(o);
+    };
+    Bomb.prototype.unsubscribe = function (o) {
+        var i = this.observers.indexOf(o);
+        if (i != -1) {
+            this.observers.splice(i, 1);
+        }
+    };
+    Bomb.prototype.notifyObs = function () {
+        for (var i = this.observers.length - 1; i >= 0; i--) {
+            this.observers[i].notify();
+        }
+    };
+    return Bomb;
 }(GameObject));
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
@@ -432,6 +459,12 @@ var GameManager = (function () {
                                 otherobj.remove();
                             }
                         }
+                        else if (otherobj instanceof Bomb) {
+                            if (obj.hasCollision(otherobj)) {
+                                otherobj.notifyObs();
+                                otherobj.remove();
+                            }
+                        }
                     }
                     if (obj instanceof Bullet) {
                         if (otherobj instanceof Asteroid) {
@@ -439,7 +472,6 @@ var GameManager = (function () {
                                 AudioManager.playRandomExplosionSound();
                                 otherobj.explode();
                                 obj.remove();
-                                otherobj.remove();
                             }
                         }
                     }
