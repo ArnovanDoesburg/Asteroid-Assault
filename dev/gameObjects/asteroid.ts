@@ -4,12 +4,10 @@ class Asteroid extends GameObject implements Observer{
     
     private _rotationSpeed : number = Math.random()*2;
 
-    private _bombs        : Array<Bomb>;
     private _asteroidList : Array<Asteroid>;
 
     constructor() {
-        super(
-            Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid');
+        super(Math.floor((Math.random() * window.innerWidth) + window.innerWidth / 2), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'asteroid');
     }
 
     public update() : void {
@@ -20,7 +18,7 @@ class Asteroid extends GameObject implements Observer{
     }
 
     public notify() {
-        
+        this.explode();
     }
 
     public explode() {

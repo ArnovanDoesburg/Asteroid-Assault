@@ -1,9 +1,15 @@
 class UIManager {
+    private _score              : number;
+    private _message            : Message;
+    private static _instance    : UIManager;
 
-    private _message : Message;
+    public level                : number = 1;
 
-    constructor() {
-        new Message('author', 'made by arno van doesburg');
+    public static getInstance() {
+        if (!UIManager._instance) {
+            UIManager._instance = new UIManager()
+            }
+        return UIManager._instance
     }
 
     public createRestartMessage(content:string) {

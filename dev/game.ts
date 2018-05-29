@@ -1,42 +1,45 @@
 class Game {
-    private _uiManager      : UIManager;
-    private _restarting     : Boolean;
     private _gameManager    : GameManager;
+    private _uiManager      : UIManager;
     private _gameIsOver     : boolean;
-    private _level          : number = 1;
     
     constructor() {
 
         this._gameManager   = GameManager.getInstance();
-        this._uiManager     = new UIManager();
+        this._uiManager     = UIManager.getInstance();
 
-        this.createLevel(this._level);
+        this.createLevel(this._uiManager.level);
+        this.addPauseListener();
 
+        new AuthorMessage();
+
+        requestAnimationFrame(() => this.gameLoop());
+    };
+
+    private addPauseListener() {
         document.addEventListener('keydown', event => {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 GameManager.getInstance().togglePause();
             }
         })
-
-        requestAnimationFrame(() => this.gameLoop());
-    }
+    };
 
     private createLevel (m:number) {
         new Ship();
+        new MultiShotUpgrade();
 
+        // LEVEL BASED ENEMY AMOUNT
         for (let i = 0; i < m * 3; i++) {
             new Asteroid();
-        }
-
-        new MultiShotUpgrade();
-    }
+        };
+    };
 
     private newLevel() {
         setTimeout(() => {      
             GameManager.getInstance().resetLevel();
-            this.createLevel(this._level);
+            this.createLevel(this._uiManager.level);
         }, 3000);
-    }
+    };
 
     private gameLoop() {   
 
@@ -44,15 +47,14 @@ class Game {
 
         if (this._gameManager.lose) {
 
-            
             this._uiManager.createRestartMessage('YOU LOSE!');
 
             if (!this._gameIsOver) {
 
-                this._level = 1;
                 AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
-                this.newLevel();
                 this._gameIsOver = true;
+                this._uiManager.level = 1;
+                this.newLevel();
 
             }
         } else if (this._gameManager.win) {
@@ -61,10 +63,10 @@ class Game {
 
             if (!this._gameIsOver) {
 
-                this._level += 1;
                 AudioManager.playSound('./../sfx/ui/sfx_win.wav');
-                this.newLevel();
                 this._gameIsOver = true;
+                this._uiManager.level += 1;
+                this.newLevel();
 
             }
         } else if (this._gameManager.pause) {
@@ -73,7 +75,6 @@ class Game {
             this._uiManager.clearMessages();
             this._gameIsOver = false;
         }
-
         requestAnimationFrame(() => this.gameLoop());
     }
 

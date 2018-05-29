@@ -11,50 +11,58 @@ var __extends = (this && this.__extends) || (function () {
 var Game = (function () {
     function Game() {
         var _this = this;
-        this._level = 1;
         this._gameManager = GameManager.getInstance();
-        this._uiManager = new UIManager();
-        this.createLevel(this._level);
+        this._uiManager = UIManager.getInstance();
+        this.createLevel(this._uiManager.level);
+        this.addPauseListener();
+        new AuthorMessage();
+        requestAnimationFrame(function () { return _this.gameLoop(); });
+    }
+    ;
+    Game.prototype.addPauseListener = function () {
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 GameManager.getInstance().togglePause();
             }
         });
-        requestAnimationFrame(function () { return _this.gameLoop(); });
-    }
+    };
+    ;
     Game.prototype.createLevel = function (m) {
         new Ship();
+        new MultiShotUpgrade();
         for (var i = 0; i < m * 3; i++) {
             new Asteroid();
         }
-        new MultiShotUpgrade();
+        ;
     };
+    ;
     Game.prototype.newLevel = function () {
         var _this = this;
         setTimeout(function () {
             GameManager.getInstance().resetLevel();
-            _this.createLevel(_this._level);
+            _this.createLevel(_this._uiManager.level);
         }, 3000);
     };
+    ;
     Game.prototype.gameLoop = function () {
         var _this = this;
         this._gameManager.loop();
         if (this._gameManager.lose) {
             this._uiManager.createRestartMessage('YOU LOSE!');
             if (!this._gameIsOver) {
-                this._level = 1;
                 AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
-                this.newLevel();
                 this._gameIsOver = true;
+                this._uiManager.level = 1;
+                this.newLevel();
             }
         }
         else if (this._gameManager.win) {
             this._uiManager.createRestartMessage('YOU WIN!');
             if (!this._gameIsOver) {
-                this._level += 1;
                 AudioManager.playSound('./../sfx/ui/sfx_win.wav');
-                this.newLevel();
                 this._gameIsOver = true;
+                this._uiManager.level += 1;
+                this.newLevel();
             }
         }
         else if (this._gameManager.pause) {
@@ -180,6 +188,13 @@ var Message = (function () {
     });
     return Message;
 }());
+var AuthorMessage = (function (_super) {
+    __extends(AuthorMessage, _super);
+    function AuthorMessage() {
+        return _super.call(this, 'author', 'made by arno van doesburg') || this;
+    }
+    return AuthorMessage;
+}(Message));
 var Asteroid = (function (_super) {
     __extends(Asteroid, _super);
     function Asteroid() {
@@ -196,6 +211,7 @@ var Asteroid = (function (_super) {
         _super.prototype.outsideWindow.call(this);
     };
     Asteroid.prototype.notify = function () {
+        this.explode();
     };
     Asteroid.prototype.explode = function () {
         new AsteroidExplosion(this.x, this.y);
@@ -234,30 +250,6 @@ var AsteroidPart = (function (_super) {
         }
     };
     return AsteroidPart;
-}(GameObject));
-var Bomb = (function (_super) {
-    __extends(Bomb, _super);
-    function Bomb() {
-        var _this = _super.call(this, Math.floor((Math.random() * window.innerWidth) + 1), Math.floor((Math.random() * window.innerHeight) + 1), 0, 'bomb') || this;
-        _this.observers = new Array();
-        return _this;
-    }
-    Bomb.prototype.subscribe = function (o) {
-        this.observers.push(o);
-    };
-    Bomb.prototype.unsubscribe = function (o) {
-        var i = this.observers.indexOf(o);
-        if (i != -1) {
-            this.observers.splice(i, 1);
-        }
-    };
-    Bomb.prototype.activate = function () {
-        for (var _i = 0, _a = this.observers; _i < _a.length; _i++) {
-            var o = _a[_i];
-            o.notify();
-        }
-    };
-    return Bomb;
 }(GameObject));
 var Bullet = (function (_super) {
     __extends(Bullet, _super);
@@ -500,8 +492,14 @@ var KeyboardInput = (function () {
 }());
 var UIManager = (function () {
     function UIManager() {
-        new Message('author', 'made by arno van doesburg');
+        this.level = 1;
     }
+    UIManager.getInstance = function () {
+        if (!UIManager._instance) {
+            UIManager._instance = new UIManager();
+        }
+        return UIManager._instance;
+    };
     UIManager.prototype.createRestartMessage = function (content) {
         if (!document.querySelector('message')) {
             this._message = new Message('message', content);
