@@ -6,7 +6,7 @@ This project was made on behalf of the Rotterdam University of Applied Sciences.
 
 Play Asteroid Assault on http://arnovandoesburg.nl/
 
-##Powerups
+## Powerups
 * multi-shot - allows the player to shoot in a wide angle three times.
 * bomb - makes all the asteroids explode.
 
