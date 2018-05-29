@@ -5,7 +5,7 @@ class MultiShot implements iShootBehaviour {
 
     constructor(s:Ship) {
         this._ship = s;
-        AudioManager.playSound('./../sfx/sfx_shieldUp.ogg');
+        AudioManager.playSound('./../sfx/sfx_pickup.wav');
     }
 
     public shoot() : void {

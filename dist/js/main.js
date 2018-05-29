@@ -42,25 +42,29 @@ var Game = (function () {
         setTimeout(function () {
             GameManager.getInstance().resetLevel();
             _this.createLevel(_this._uiManager.level);
-        }, 3000);
+        }, 4000);
     };
     ;
     Game.prototype.gameLoop = function () {
         var _this = this;
         this._gameManager.loop();
         if (this._gameManager.lose) {
-            this._uiManager.createRestartMessage('YOU LOSE!');
             if (!this._gameIsOver) {
-                AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
+                setTimeout(function () {
+                    _this._uiManager.createRestartMessage('YOU LOSE!');
+                    AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
+                }, 1000);
                 this._gameIsOver = true;
                 this._uiManager.level = 1;
                 this.newLevel();
             }
         }
         else if (this._gameManager.win) {
-            this._uiManager.createRestartMessage('YOU WIN!');
             if (!this._gameIsOver) {
-                AudioManager.playSound('./../sfx/ui/sfx_win.wav');
+                setTimeout(function () {
+                    _this._uiManager.createRestartMessage('YOU WIN!');
+                    AudioManager.playSound('./../sfx/ui/sfx_win.wav');
+                }, 1000);
                 this._gameIsOver = true;
                 this._uiManager.level += 1;
                 this.newLevel();
@@ -272,6 +276,7 @@ var Bomb = (function (_super) {
         }
     };
     Bomb.prototype.notifyObs = function () {
+        AudioManager.playSound('./../sfx/sfx_bomb.wav');
         for (var i = this.observers.length - 1; i >= 0; i--) {
             this.observers[i].notify();
         }
@@ -312,7 +317,7 @@ var Ship = (function (_super) {
         var _this = _super.call(this, window.innerWidth / 5, window.innerHeight / 2, 0, 'ship') || this;
         _this._speed = 7;
         _this._angle = 5;
-        _this._lives = 2;
+        _this._lives = 1;
         _this._invincible = false;
         _this._shootBehaviour = new SingleShot(_this);
         KeyboardInput.getInstance().addKeycodeCallback(37, function () { _this.rotate(-_this._angle); });
@@ -451,6 +456,7 @@ var GameManager = (function () {
                         if (otherobj instanceof Asteroid) {
                             if (obj.hasCollision(otherobj) && !obj.invincable) {
                                 obj.hit();
+                                otherobj.explode();
                             }
                         }
                         else if (otherobj instanceof Upgrade) {
@@ -574,7 +580,7 @@ var MultiShot = (function () {
         this._cooldown = 0;
         this._ammo = 3;
         this._ship = s;
-        AudioManager.playSound('./../sfx/sfx_shieldUp.ogg');
+        AudioManager.playSound('./../sfx/sfx_pickup.wav');
     }
     MultiShot.prototype.shoot = function () {
         if (this._cooldown > 0) {

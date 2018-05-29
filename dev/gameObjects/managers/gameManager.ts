@@ -65,6 +65,7 @@ class GameManager {
                         if (otherobj instanceof Asteroid) {
                             if (obj.hasCollision(otherobj) && !obj.invincable) {
                                 obj.hit();
+                                otherobj.explode();
                             }
                         } else if (otherobj instanceof Upgrade) {
                             if (obj.hasCollision(otherobj)) {
@@ -90,7 +91,6 @@ class GameManager {
                         }
                     }
                 }
-
                 obj.update();
                 obj.draw();
             }
