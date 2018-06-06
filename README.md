@@ -35,7 +35,7 @@ You'll also require BrowserSync for live reloading.
 npm install -g browser-sync
 ```
 
-### Installing
+### Installing & running
 
 To get the project up and running be sure to watch local files for changes by executing the build command, this can be done by pressing ⌘CMD+⇧SHIFT+B.
 
@@ -46,6 +46,29 @@ browser-sync start --server --files "js/main.js"
 ```
 
 Make sure to execute this command in the /dist directory and not the root folder.
+
+## Design patterns
+
+### Singleton
+I applied the singleton pattern within gameManager.ts because there will most likely always be only one GameManager at all times. This class is responsible for taking care of all the GameObject instances that are being used within the game. 
+
+By making this class a singleton it's easy to let objects add and remove themselves from the GameObject array, taking away possible unwanted responsibilities and duplicate parameters. This is made possible by having a GameManager instance available at all times.
+
+### Strategy
+
+The strategy pattern is used to configure the ship shooting behaviour on runtime. At the moment there are two concrete shootingbehaviours which can be toggled on a ship accordingly. By picking up a weapon powerup the colliding ship will have it's shootingbehaviour changed to the multishot shootingbehaviour, which on it's own turn resets the ships shooting behaviour after running out of ammo.
+
+### Observer
+
+Another powerup in the game makes use of the observer pattern. The bomb powerup (**subject**) has a list of asteroids (**observer**) which, when picked up, notifies all the asteroids to explode.
+
+All asteroids are registered to the bomb once a level is created. When an asteroid is shot it unsubscribes and deletes itself from the game.
+
+### Polymorphism
+
+By making every game-related object into a GameObject it was easy to loop through all the different types of GameObjects and check for collision etc. by Using instanceof it was possible to differentiate a ship from a asteroid while they are both of the same type GameObject.
+
+The different messages you see on screen while playing the game are also of the same type Message while also being it's own type. An instance of authorMessage.ts is also an instance of message.ts. 
 
 ## Pull request
 
