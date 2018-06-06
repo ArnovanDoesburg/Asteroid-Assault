@@ -1,6 +1,6 @@
 #  ![](https://raw.githubusercontent.com/ArnovanDoesburg/CMTPRG01-8/feature/Collision/dist/img/meteor/tiny2.png) Asteroid Assault ![](https://raw.githubusercontent.com/ArnovanDoesburg/CMTPRG01-8/feature/Collision/dist/img/meteor/tiny1.png)
 
-Destroy all the big asteroids without getting hit more than twice! Each level spawns more asteroids than the last one, how long will you survive?
+Destroy all the asteroids without getting hit more than once! Each level spawns more asteroids than the last one, how long will you survive? Use powerups to upgrade your ship's weapons or use the superbomb powerup to make the asteroids go bye-bye!
 
 This project was made on behalf of the Rotterdam University of Applied Sciences.
 
@@ -8,7 +8,7 @@ Play Asteroid Assault on http://arnovandoesburg.nl/AsteroidAssault/
 
 ## Powerups
 * multi-shot - allows the player to shoot in a wide angle three times.
-* bomb - makes all the asteroids explode.
+* superbomb - makes all the asteroids explode.
 
 ## Controls
 * Movement : arrow keys
