@@ -341,7 +341,6 @@ var Ship = (function (_super) {
     Ship.prototype.hit = function () {
         if (this._lives < 1) {
             AudioManager.playRandomExplosionSound();
-            GameManager.getInstance().removeGameObject(this);
             _super.prototype.remove.call(this);
         }
         else {

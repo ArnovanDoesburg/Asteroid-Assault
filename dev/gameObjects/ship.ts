@@ -23,7 +23,6 @@ class Ship extends GameObject {
     public hit() {
         if (this._lives < 1) {
             AudioManager.playRandomExplosionSound();
-            GameManager.getInstance().removeGameObject(this);
             super.remove();
         } else {
             this.respawn();
