@@ -4,16 +4,20 @@ Destroy all the asteroids without getting hit more than once! Each level spawns 
 
 This project was made on behalf of the Rotterdam University of Applied Sciences.
 
-Play Asteroid Assault on http://arnovandoesburg.nl/AsteroidAssault/
+[Play Asteroid Assault!](http://arnovandoesburg.nl/AsteroidAssault/)
 
 ## Powerups
-* multi-shot - allows the player to shoot in a wide angle three times.
-* superbomb - makes all the asteroids explode.
+```
+Multi-shot : gain three charges of multi-shot, shooting five bullets at once
+Super bomb : annihilate all asteroids with a big bang
+```
 
 ## Controls
-* Movement : arrow keys
-* Fire : space bar
-* Pause : escape
+```
+Movement : arrow keys
+Fire     : space bar
+Pause    : escape key
+```
 
 # Development
 
