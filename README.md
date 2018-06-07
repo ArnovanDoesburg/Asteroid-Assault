@@ -56,19 +56,19 @@ By making this class a singleton it's easy to let objects add and remove themsel
 
 ### Strategy
 
-The strategy pattern is used to configure the ship shooting behaviour on runtime. At the moment there are two concrete shootingbehaviours which can be toggled on a ship accordingly. By picking up a weapon powerup the colliding ship will have it's shootingbehaviour changed to the multishot shootingbehaviour, which on it's own turn resets the ships shooting behaviour after running out of ammo.
+The strategy pattern is used to configure the ship shooting behaviour on runtime. At the moment there are two concrete [`IShootBehaviours`](dev/strategy "Go to the strategy pattern classes") which can be toggled on a ship accordingly. By picking up a weapon powerup the colliding ship will have it's ishootingbehaviour changed to the [`multishot`](dev/strategy/multiShot.ts "Go to the multishot class") ishootingbehaviour, which on it's own turn resets the ships ishootingbehaviour to a [`singleshot`](dev/strategy/singleShot.ts "Go to the singleshot class") behaviour after running out of ammo.
 
 ### Observer
 
-Another powerup in the game makes use of the observer pattern. The bomb powerup (**subject**) has a list of asteroids (**observer**) which, when picked up, notifies all the asteroids to explode.
+Another powerup in the game makes use of the observer pattern. The [`bomb`](dev/gameObjects/bomb.ts "Go to the bomb class") powerup (**subject**) has a list of [`asteroids`](dev/gameObjects/asteroid.ts "Go to the asteroid class") (**observer**) which, when picked up, notifies all the asteroids to explode.
 
 All asteroids are registered to the bomb once a level is created. When an asteroid is shot it unsubscribes and deletes itself from the game.
 
 ### Polymorphism
 
-By making every game-related object into a GameObject it was easy to loop through all the different types of GameObjects and check for collision etc. by Using instanceof it was possible to differentiate a ship from a asteroid while they are both of the same type GameObject.
+By making every game-related object into a [`GameObject`](dev/gameObject.ts "Go to the gameobject class") it was easy to loop through all the different types of GameObjects and check for collision etc. by Using instanceof it was possible to differentiate a ship from a asteroid while they are both of the same type GameObject.
 
-The different messages you see on screen while playing the game are also of the same type Message while also being it's own type. An instance of authorMessage.ts is also an instance of message.ts. 
+The different messages you see on screen while playing the game are also of the same type Message while also being it's own type. An instance of [`authormessage.ts`](dev/UI/messages/authorMessage.ts "Go to the authormessage class") is also an instance of [`message.ts`](dev/UI/messages/message.ts "Go to the message class"). 
 
 ## Pull request
 
