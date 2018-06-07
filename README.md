@@ -2,21 +2,19 @@
 
 Destroy all the asteroids without getting hit more than once! Each level spawns more asteroids than the last one, how long will you survive? Use powerups to upgrade your ship's weapons or use the superbomb powerup to make the asteroids go bye-bye!
 
-This project was made on behalf of the Rotterdam University of Applied Sciences.
-
 [Play Asteroid Assault!](http://arnovandoesburg.nl/AsteroidAssault/)
-
-## Powerups
-```
-Multi-shot : gain three charges of multi-shot, shooting five bullets at once
-Super bomb : annihilate all asteroids with a big bang
-```
 
 ## Controls
 ```
 Movement : arrow keys
 Fire     : space bar
 Pause    : escape key
+```
+
+## Powerups
+```
+Multi-shot : gain three charges of multi-shot, shooting five bullets at once
+Super bomb : annihilate all asteroids with a big bang
 ```
 
 # Development
@@ -91,3 +89,6 @@ Coming soon™
 * **Arno van Doesburg** - *development*
 * **Kenney.nl** - *graphics*
 * **SubspaceAudio** - *sfx*
+
+
+This project was made on behalf of the Rotterdam University of Applied Sciences.
