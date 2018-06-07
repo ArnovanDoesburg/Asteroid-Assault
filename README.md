@@ -50,7 +50,7 @@ Make sure to execute this command in the /dist directory and not the root folder
 ## Design patterns
 
 ### Singleton
-I applied the singleton pattern within gameManager.ts because there will most likely always be only one GameManager at all times. This class is responsible for taking care of all the GameObject instances that are being used within the game. 
+I applied the singleton pattern within [`gameManager.ts`](dev/gameObjects/managers/gameManager.ts "Go to the GameManager Class") because there will most likely always be only one GameManager at all times. This class is responsible for taking care of all the GameObject instances that are being used within the game. 
 
 By making this class a singleton it's easy to let objects add and remove themselves from the GameObject array, taking away possible unwanted responsibilities and duplicate parameters. This is made possible by having a GameManager instance available at all times.
 
