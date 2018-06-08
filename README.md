@@ -1,4 +1,4 @@
-#  ![](https://raw.githubusercontent.com/ArnovanDoesburg/CMTPRG01-8/feature/Collision/dist/img/meteor/tiny2.png) Asteroid Assault ![](https://raw.githubusercontent.com/ArnovanDoesburg/CMTPRG01-8/feature/Collision/dist/img/meteor/tiny1.png)
+![](https://i.imgur.com/mq2Axm4.png)
 
 Destroy all the asteroids without getting hit more than once! Each level spawns more asteroids than the last one, how long will you survive? Use powerups to upgrade your ship's weapons or use the superbomb powerup to make the asteroids go bye-bye!
 
