@@ -1,15 +1,9 @@
 class Game {
-    private _gameManager    : GameManager;
-    private _uiManager      : UIManager;
     private _gameIsOver     : boolean;
     private _bomb           : Bomb;
     
     constructor() {
-
-        this._gameManager   = GameManager.getInstance();
-        this._uiManager     = UIManager.getInstance();
-
-        this.createLevel(this._uiManager.level);
+        this.createLevel(UIManager.getInstance().level);
         this.addPauseListener();
 
         new AuthorMessage();
@@ -40,50 +34,49 @@ class Game {
     private newLevel() {
         setTimeout(() => {      
             GameManager.getInstance().resetLevel();
-            this.createLevel(this._uiManager.level);
+            this.createLevel(UIManager.getInstance().level);
         }, 4000);
     };
 
     private gameLoop() {   
 
-        this._gameManager.loop();
+        GameManager.getInstance().loop();
 
-        if (this._gameManager.lose) {
+        if (GameManager.getInstance().lose) {
 
             if (!this._gameIsOver) {
 
                 setTimeout(() => {
-                    this._uiManager.createRestartMessage('YOU LOSE!');
+                    UIManager.getInstance().createRestartMessage('YOU LOSE!');
                     AudioManager.playSound('./../sfx/ui/sfx_lose.wav');
                 }, 1000);
                 this._gameIsOver = true;
-                this._uiManager.level = 1;
+                UIManager.getInstance().level = 1;
                 this.newLevel();
 
             }
-        } else if (this._gameManager.win) {
+        } else if (GameManager.getInstance().win) {
 
             
 
             if (!this._gameIsOver) {
 
                 setTimeout(() => {
-                    this._uiManager.createRestartMessage('YOU WIN!');
+                    UIManager.getInstance().createRestartMessage('YOU WIN!');
                     AudioManager.playSound('./../sfx/ui/sfx_win.wav');
                 }, 1000);
                 
                 this._gameIsOver = true;
-                this._uiManager.level += 1;
+                UIManager.getInstance().level += 1;
                 this.newLevel();
 
             }
-        } else if (this._gameManager.pause) {
-            this._uiManager.createPauseMessage('PRESS "ESCAPE" TO UNPAUSE');
+        } else if (GameManager.getInstance().pause) {
+            UIManager.getInstance().createPauseMessage('PRESS "ESCAPE" TO UNPAUSE');
         } else {
-            this._uiManager.clearMessages();
+            UIManager.getInstance().clearMessages();
             this._gameIsOver = false;
         }
         requestAnimationFrame(() => this.gameLoop());
     }
-
 }
