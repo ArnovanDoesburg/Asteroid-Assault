@@ -82,7 +82,7 @@ The different messages you see on screen while playing the game are also of the 
 
 ## UML diagram
 
-![https://i.imgur.com/7saiOTQ.png](https://i.imgur.com/7saiOTQ.png)
+![https://i.imgur.com/zKPdOOS.png](https://i.imgur.com/zKPdOOS.png)
 
 ## Authors
 
