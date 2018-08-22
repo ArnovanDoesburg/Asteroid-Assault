@@ -22,6 +22,7 @@ class Game {
     private createLevel (m:number) {
         new Ship();
         new MultiShotUpgrade();
+        new FastShotUpgrade();
         this._bomb = new Bomb();
 
         // LEVEL BASED ENEMY AMOUNT

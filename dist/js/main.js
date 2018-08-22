@@ -28,6 +28,7 @@ var Game = (function () {
     Game.prototype.createLevel = function (m) {
         new Ship();
         new MultiShotUpgrade();
+        new FastShotUpgrade();
         this._bomb = new Bomb();
         for (var i = 0; i < m * 3; i++) {
             this._bomb.subscribe(new Asteroid(this._bomb));
@@ -562,6 +563,16 @@ var Upgrade = (function (_super) {
     }
     return Upgrade;
 }(GameObject));
+var FastShotUpgrade = (function (_super) {
+    __extends(FastShotUpgrade, _super);
+    function FastShotUpgrade() {
+        return _super.call(this, 'weaponspeedupgrade') || this;
+    }
+    FastShotUpgrade.prototype.activate = function (s) {
+        return new FastShot(s);
+    };
+    return FastShotUpgrade;
+}(Upgrade));
 var MultiShotUpgrade = (function (_super) {
     __extends(MultiShotUpgrade, _super);
     function MultiShotUpgrade() {
@@ -572,6 +583,26 @@ var MultiShotUpgrade = (function (_super) {
     };
     return MultiShotUpgrade;
 }(Upgrade));
+var FastShot = (function () {
+    function FastShot(s) {
+        this._cooldown = 0;
+        this._ship = s;
+    }
+    FastShot.prototype.shoot = function () {
+        if (this._cooldown > 0) {
+            return;
+        }
+        new Bullet(this._ship.x + 20, this._ship.y + 25, this._ship.rotation, 10, 'bulletsingle');
+        this._cooldown = 11;
+        AudioManager.playSound('./../sfx/lasers/sfx_laser1.wav');
+    };
+    FastShot.prototype.update = function () {
+        if (this._cooldown > 0) {
+            this._cooldown -= 1;
+        }
+    };
+    return FastShot;
+}());
 var MultiShot = (function () {
     function MultiShot(s) {
         this._cooldown = 0;
