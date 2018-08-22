@@ -68,6 +68,12 @@ weaponupgrade {
     height: 32px;
 }
 
+weaponspeedupgrade {
+    background-image: url(./../img/speedshot.png);
+    width: 32px;
+    height: 32px;
+}
+
 bulletsingle {
     background-image: url(./../img/bulletsingle.png);
     width: 48px;
